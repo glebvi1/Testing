@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>List of users</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+
+<header th:insert="parts/system_admin_header :: system_admin_header" th:if="${admin}"></header>
+<header th:insert="parts/teacher_header :: teacher_header" th:if="${admin} == null"></header>
+
+<h4>Список пользователей</h4>
+
+<form th:action="@{/system-admin/all-users}" method="get" th:if="${admin}">
+    <div><label> Почта: <input type="email" name="username" class="form-control"/> </label></div>
+    <label> Имя: <input type="text" name="fullName" class="form-control"/> </label>
+    <button type="submit" class="btn btn-primary">Найти</button>
+</form>
+
+<table class="table">
+    <tr>
+        <th scope="col">Имя</th>
+        <th scope="col">Почта</th>
+        <th scope="col">Роль</th>
+    </tr>
+    <tr th:each="user : ${usersList}">
+        <td th:text="${user.getFullName()}" ></td>
+        <td th:text="${user.getUsername()}"></td>
+        <td th:text="${user.getRoles()}" th:if="${admin}"></td>
+        <div th:if="${!admin}">
+            <td th:text="Студент" th:if="${!user.isTeacher()}"></td>
+            <td th:text="Учитель" th:if="${user.isTeacher()}"></td>
+        </div>
+        <td><div><a th:href="@{/system-admin/edit/{id}(id=${user.getId()})}" class="btn btn-primary" th:if="${admin}">Изменить</a></div></td>
+    </tr>
+</table>
+
+</body>
+</html>
