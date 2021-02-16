@@ -11,9 +11,9 @@
 <p>[[${message}]]</p>
 <form th:action="@{/registr-form}" method="post">
     <div class="form-group">
-        <div><label> Имя: <input type="text" name="fullName" required/> </label></div>
-        <div><label> Почта: <input type="email" name="username" required/> </label></div>
-        <div><label> Пароль: <input type="password" name="password" required/> </label></div>
+        <div><label> Имя: <input type="text" name="fullName" class="form-control" required/> </label></div>
+        <div><label> Почта: <input type="email" name="username" class="form-control" required/> </label></div>
+        <div><label> Пароль: <input type="password" name="password" class="form-control" required/> </label></div>
     </div>
     <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
 </form>
