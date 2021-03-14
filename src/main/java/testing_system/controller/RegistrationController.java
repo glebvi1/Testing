@@ -3,6 +3,7 @@ package testing_system.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -28,6 +29,7 @@ import java.util.Collections;
 public class RegistrationController {
 
     private static final String RECAPTHCA_API = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s";
+
     @Autowired
     private UserService userService;
     @Autowired
@@ -40,6 +42,8 @@ public class RegistrationController {
     private AuxiliaryService auxiliaryService;
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Value("${recaptcha.secret}")
     private String secret;
@@ -62,24 +66,24 @@ public class RegistrationController {
             User user1 = new User();
             user1.setUsername("s-admin@admin.admin");
             user1.setRoles(Collections.singleton(Roles.SYSTEM_ADMIN));
-            user1.setPassword("1");
+            user1.setPassword(passwordEncoder.encode("1"));
             user1.setFullName("s-admin");
 
             User user2 = new User();
             user2.setUsername("t-admin@admin.admin");
             user2.setRoles(Collections.singleton(Roles.TEACHER_ADMIN));
-            user2.setPassword("1");
+            user2.setPassword(passwordEncoder.encode("1"));
             user2.setFullName("t-admin");
 
             Student student = new Student();
             student.setUsername("student@student.student");
-            student.setPassword("1");
+            student.setPassword(passwordEncoder.encode("1"));
             student.setRoles(Collections.singleton(Roles.STUDENT));
             student.setFullName("student");
 
             Teacher teacher = new Teacher();
             teacher.setFullName("teacher");
-            teacher.setPassword("1");
+            teacher.setPassword(passwordEncoder.encode("1"));
             teacher.setRoles(Collections.singleton(Roles.TEACHER));
             teacher.setUsername("teacher@teacher.teacher");
 
@@ -107,10 +111,11 @@ public class RegistrationController {
             model.addAttribute("message", "Вы ввели неправильный пароль или почту.");
             return "login";
         }
-        if (!StringUtils.isEmpty(userFromDb.getActivatedCode())) {
-            model.addAttribute("message", "Пожалуйста, подтвердите активационный код.");
+        if (userFromDb.getActivatedCode() != null) {
+            model.addAttribute("message", "Вы не активировали свой аккаунт!");
             return "login";
         }
+
         return "redirect:/about";
     }
 

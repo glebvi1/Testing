@@ -107,6 +107,7 @@ public class User implements UserDetails {
     public String getStringRoles() {
         String roles = "";
         boolean isStudent = this.getRoles().contains(Roles.STUDENT);
+        boolean isAdmin = this.getRoles().contains(Roles.TEACHER_ADMIN);
         if (isStudent) {
             roles += "студент";
         }
@@ -117,10 +118,11 @@ public class User implements UserDetails {
         if (this.getRoles().contains(Roles.TEACHER)) {
             roles += "учитель";
         }
-        if (size > 2) {
-            roles += " ";
-        }
-        if (this.getRoles().contains(Roles.TEACHER_ADMIN)) {
+
+        if (isAdmin) {
+            if (roles.length() != 0) {
+                roles += " ";
+            }
             roles += "администратор";
         }
 

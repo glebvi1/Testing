@@ -14,6 +14,7 @@ import testing_system.domain.people.User;
 import testing_system.domain.test.Test;
 import testing_system.repos.group.EducationGroupRepo;
 import testing_system.repos.group.ModuleRepo;
+import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
 import testing_system.repos.test.TestRepo;
 import testing_system.service.AuxiliaryService;
@@ -35,16 +36,25 @@ public class TeacherController {
     private UserRepo userRepo;
     @Autowired
     private AuxiliaryService auxiliaryService;
+    @Autowired
+    private TeacherRepo teacherRepo;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String myGroups(Model model,
-                           @AuthenticationPrincipal Teacher teacher) {
-        List<EducationGroup> groups;
-        groups = teacher.getGroups();
+                           @AuthenticationPrincipal User user) {
+        boolean isAdmin = user.getRoles().contains(Roles.TEACHER_ADMIN);
+        boolean isTeacher = user.getRoles().contains(Roles.TEACHER);
 
-        model.addAttribute("allGroups", groups);
-        model.addAttribute("role", "teacher");
+        if (isAdmin && !isTeacher) {
+            model.addAttribute("role", "teacher_admin");
+        } else if (isAdmin && isTeacher) {
+            model.addAttribute("role", "teacher_admin");
+            model.addAttribute("allGroups", teacherRepo.findByUsername(user.getUsername()).getGroups());
+        } else {
+            model.addAttribute("role", "teacher");
+            model.addAttribute("allGroups", teacherRepo.findByUsername(user.getUsername()).getGroups());
+        }
 
         return "all_groups";
     }
