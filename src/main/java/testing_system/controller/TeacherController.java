@@ -9,16 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.group.Module;
 import testing_system.domain.people.Roles;
-import testing_system.domain.people.Student;
 import testing_system.domain.people.Teacher;
 import testing_system.domain.people.User;
 import testing_system.domain.test.Test;
 import testing_system.repos.group.EducationGroupRepo;
 import testing_system.repos.group.ModuleRepo;
-import testing_system.repos.people.StudentRepo;
-import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
 import testing_system.repos.test.TestRepo;
+import testing_system.service.AuxiliaryService;
 import testing_system.service.TeacherService;
 
 import java.util.ArrayList;
@@ -30,15 +28,13 @@ import java.util.Set;
 @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT', 'TEACHER_ADMIN')")
 public class TeacherController {
     @Autowired
-    private EducationGroupRepo educationGroupRepo;
-    @Autowired
-    private ModuleRepo moduleRepo;
-    @Autowired
     private TeacherService teacherService;
     @Autowired
     private TestRepo testRepo;
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private AuxiliaryService auxiliaryService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('TEACHER')")
@@ -56,7 +52,12 @@ public class TeacherController {
     @GetMapping("/course/{id}/all-participants")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String allParticipants(Model model,
-                                  @PathVariable(name = "id") EducationGroup educationGroup) {
+                                  @PathVariable(name = "id") EducationGroup educationGroup,
+                                  @AuthenticationPrincipal User user) {
+        if (!auxiliaryService.security(user, educationGroup)) {
+            return "error";
+        }
+
         model.addAttribute("group", educationGroup);
         List<User> list = new ArrayList<>();
         list.addAll(educationGroup.getStudents());
@@ -70,11 +71,11 @@ public class TeacherController {
     public String course(@PathVariable(name = "id") EducationGroup educationGroup,
                          Model model,
                          @AuthenticationPrincipal User user) {
-        if (!teacherService.check(user, educationGroup)) {
+        if (!auxiliaryService.security(user, educationGroup)) {
             return "error";
         }
-
-        if (user.getRoles().contains(Roles.TEACHER) || user.getRoles().contains(Roles.TEACHER_ADMIN)) {
+        String role = auxiliaryService.getRole(user);
+        if (role.equals("teacher") || role.equals("teacher_admin")) {
             model.addAttribute("role", "teacher");
         } else {
             model.addAttribute("role", "student");
@@ -91,7 +92,11 @@ public class TeacherController {
     @PreAuthorize("hasAuthority('TEACHER')")
     public String addModule(@PathVariable(name = "id") EducationGroup educationGroup,
                             @RequestParam String title,
-                            Model model) {
+                            Model model,
+                            @AuthenticationPrincipal User user) {
+        if (!auxiliaryService.security(user, educationGroup)) {
+            return "error";
+        }
         model.addAttribute("role", "teacher");
         model.addAttribute("groupId", educationGroup.getId());
 
@@ -111,9 +116,13 @@ public class TeacherController {
     public String module(@PathVariable(name = "id") Module module,
                          Model model,
                          @AuthenticationPrincipal User user) {
-        if (user.getRoles().contains(Roles.TEACHER_ADMIN) || user.getRoles().contains(Roles.TEACHER)) {
+        if (!auxiliaryService.security(user, module.getEducationGroup())) {
+            return "error";
+        }
+        String role = auxiliaryService.getRole(user);
+        if (role.equals("teacher") || role.equals("teacher_admin")) {
             model.addAttribute("role", "teacher");
-        } else if (user.getRoles().contains(Roles.STUDENT)){
+        } else if (role.equals("student")){
             model.addAttribute("role", "student");
             model.addAttribute("studentId", user.getId());
         }
@@ -127,7 +136,12 @@ public class TeacherController {
     @PreAuthorize("hasAuthority('TEACHER')")
     public String addTest(@PathVariable(name = "id") Module module,
                           @RequestParam(name = "count", required = false) Integer count,
-                          Model model) {
+                          Model model,
+                          @AuthenticationPrincipal User user) {
+
+        if (!auxiliaryService.security(user, module.getEducationGroup())) {
+            return "error";
+        }
 
         model.addAttribute("module", module);
 
@@ -152,7 +166,12 @@ public class TeacherController {
                           @RequestParam(name = "isCorrect") List<String> htmlCorrectAnswers,
                           @PathVariable(name = "id") Module module,
                           @RequestParam(name = "marks") List<Integer> marks,
-                          Model model) {
+                          Model model,
+                          User user) {
+
+        if (!auxiliaryService.security(user, module.getEducationGroup())) {
+            return "error";
+        }
 
         model.addAttribute("module", module);
 
@@ -179,7 +198,11 @@ public class TeacherController {
                              @PathVariable(name = "id") Test test,
                              @AuthenticationPrincipal User user) {
 
-        model.addAttribute("role", getRole(user));
+        if (!auxiliaryService.security(user, test.getModule().getEducationGroup())) {
+            return "error";
+        }
+
+        model.addAttribute("role", auxiliaryService.getRole(user));
 
         List<Integer> allMarks = new ArrayList<>(test.getStudentsMarks().values());
 
@@ -203,18 +226,6 @@ public class TeacherController {
         return "statistics";
     }
 
-    private String getRole(User user) {
-        Set<Roles> roles = user.getRoles();
-        if (roles.contains(Roles.TEACHER_ADMIN)) {
-            return "admin";
-        }
-        if (roles.contains(Roles.TEACHER)) {
-            return "teacher";
-        }
-        if (roles.contains(Roles.STUDENT)) {
-            return "student";
-        }
-        return "";
-    }
+
 
 }

@@ -7,15 +7,20 @@
 </head>
 <body>
 
+<header th:insert="parts/system_admin_header :: system_admin_header" th:if="${role} == 'system_admin'"></header>
+<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${role} == 'teacher_admin'"></header>
 <header th:insert="parts/teacher_header :: teacher_header" th:if="${role} == 'teacher'"></header>
 <header th:insert="parts/student_header :: student_header" th:if="${role} == 'student'"></header>
-<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${role} == 'admin'"></header>
+
+<h4>Все группы</h4>
 
 <div class="card-columns">
     <div class="card" th:each="group : ${allGroups}">
         <div class="card-body" >
             <h4 class="card-title" th:text="${group.getTitle()}"></h4>
-            <a th:href="@{/educated/course/{id}(id=${group.getId()})}" class="btn btn-primary" >Посмотреть</a>
+            <a th:href="@{/educated/course/{id}(id=${group.getId()})}" class="btn btn-primary" th:if="${role} != 'system_admin'" >Посмотреть</a>
+            <a th:href="@{/teacher-admin/all-groups/edit/{id}(id=${group.getId()})}" class="btn btn-primary" th:if="${role} == 'system_admin'" >Изменить</a>
+            <a th:href="@{/teacher-admin/all-groups/edit/{id}(id=${group.getId()})}" class="btn btn-primary" th:if="${role} == 'teacher_admin'" >Изменить</a>
         </div>
     </div>
 </div>

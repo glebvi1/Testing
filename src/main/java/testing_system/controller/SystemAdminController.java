@@ -4,16 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import testing_system.domain.message.Message;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.User;
+import testing_system.repos.message.MessageRepo;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
 import testing_system.service.SystemAdminService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,32 +26,14 @@ public class SystemAdminController {
     @Autowired
     private UserRepo userRepo;
     @Autowired
-    private StudentRepo studentRepo;
-    @Autowired
-    private TeacherRepo teacherRepo;
-
-    @GetMapping("/all-users")
-    public String listUsers(Model model,
-                            @RequestParam(required = false) String username,
-                            @RequestParam(required = false) String fullName) {
-        model.addAttribute("admin", true);
-        if (!StringUtils.isEmpty(username) || !StringUtils.isEmpty(fullName)) {
-            model.addAttribute("usersList", systemAdminService.sort(username, fullName));
-        } else {
-            List<User> users = new ArrayList<User>();
-            users.addAll(studentRepo.findAll());
-            users.addAll(teacherRepo.findAll());
-            model.addAttribute("usersList", users);
-        }
-        return "list_of_users";
-    }
+    private MessageRepo messageRepo;
 
     @GetMapping("/edit/{id}")
     public String edit(Model model,
                        @PathVariable Long id) {
         model.addAttribute("user", userRepo.findById(id).get());
         model.addAttribute("roles", Roles.values());
-        return "edit_user";
+        return "edit_role";
     }
 
     @PostMapping("/edit/{id}")
@@ -63,14 +45,15 @@ public class SystemAdminController {
             model.addAttribute("user", user);
             model.addAttribute("roles", Roles.values());
             model.addAttribute("message", "Вы ввели не корректные данные.");
-            return "edit_user";
+            return "edit_role";
         }
 
-        return "redirect:/system-admin/all-users";
+        return "redirect:/teacher-admin/all-users";
     }
 
     @GetMapping("/add-group")
     public String addGroup(Model model) {
+
         int[] studentsNumbers = new int[30];
         for (int i = 1; i <= 30; i++) {
             studentsNumbers[i - 1] = i;
@@ -95,8 +78,29 @@ public class SystemAdminController {
             return "redirect:/create_group";
         }
 
+        return "redirect:/teacher-admin/all-users";
+    }
 
-        return "redirect:/system-admin/all-users";
+    @GetMapping("/questions")
+    public String questions(Model model) {
+        model.addAttribute("messages", messageRepo.findAll());
+        return "list_of_message";
+    }
+
+    @GetMapping("/questions/{id}")
+    public String getAnswer(@PathVariable(name = "id") Message message,
+                            Model model) {
+        model.addAttribute("message", message);
+        return "interaction_admin";
+    }
+
+    @PostMapping("/questions/{id}")
+    public String getAnswer(@PathVariable(name = "id") Message message,
+                            Model model,
+                            @RequestParam String answer) {
+        model.addAttribute("message", message);
+        systemAdminService.answerTheQuestion(message, answer);
+        return "redirect:/system-admin/questions";
     }
 
 }

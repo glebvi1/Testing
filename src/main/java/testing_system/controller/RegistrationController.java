@@ -1,11 +1,17 @@
 package testing_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
+import testing_system.domain.dto.CaptchaResponseDto;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Student;
 import testing_system.domain.people.Teacher;
@@ -13,29 +19,45 @@ import testing_system.domain.people.User;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
+import testing_system.service.AuxiliaryService;
+import testing_system.service.UserService;
 
 import java.util.Collections;
-import java.util.Set;
 
 @Controller
 public class RegistrationController {
+
+    private static final String RECAPTHCA_API = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s";
+    @Autowired
+    private UserService userService;
     @Autowired
     private UserRepo userRepo;
     @Autowired
     private StudentRepo studentRepo;
     @Autowired
     private TeacherRepo teacherRepo;
+    @Autowired
+    private AuxiliaryService auxiliaryService;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${recaptcha.secret}")
+    private String secret;
 
     @GetMapping("/registr-form")
     public String registration() {return "reg";}
 
     @PostMapping("/registr-form")
-    public String registration(User user, Model model) {
-        User userFromDb = userRepo.findByUsername(user.getUsername());
-        if (userFromDb != null) {
-            model.addAttribute("message", "Пользователь с такой почтой уже существует!");
+    public String registration(User user, Model model,
+                               @RequestParam(name = "g-recaptcha-response") String recaptchaResponse) {
+        String url = String.format(RECAPTHCA_API, secret, recaptchaResponse);
+        CaptchaResponseDto response = restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
+
+        if (!response.isSuccess()) {
+            model.addAttribute("captchaError", "Вы не выбрали это поле!");
             return "reg";
         }
+
         if (user.getUsername().equals("a@a.a") && user.getFullName().equals("1") && user.getPassword().equals("1")) {
             User user1 = new User();
             user1.setUsername("s-admin@admin.admin");
@@ -67,14 +89,10 @@ public class RegistrationController {
             teacherRepo.save(teacher);
 
         } else {
-        //user.setRoles(Collections.singleton(Roles.SYSTEM_ADMIN));
-        Student student = new Student();
-        student.setUsername(user.getUsername());
-        student.setFullName(user.getFullName());
-        student.setPassword(user.getPassword());
-        student.setRoles(Collections.singleton(Roles.STUDENT));
-
-        studentRepo.save(student);
+            if (!userService.addUser(user)) {
+                model.addAttribute("message", "Пользователь с такой почтой уже существует!");
+                return "reg";
+            }
         }
         return "redirect:/login";
     }
@@ -89,23 +107,29 @@ public class RegistrationController {
             model.addAttribute("message", "Вы ввели неправильный пароль или почту.");
             return "login";
         }
+        if (!StringUtils.isEmpty(userFromDb.getActivatedCode())) {
+            model.addAttribute("message", "Пожалуйста, подтвердите активационный код.");
+            return "login";
+        }
         return "redirect:/about";
+    }
+
+    @GetMapping("/activate/{code}")
+    public String activate(Model model,
+                           @PathVariable String code) {
+        if (!userService.isActivated(code)) {
+            model.addAttribute("message", "Активационный код не найден.");
+        } else {
+            model.addAttribute("message", "Активация аккаунта прошла успешно!");
+        }
+        return "login";
     }
 
     @GetMapping("/about")
     public String aboutUs(@AuthenticationPrincipal User user,
                           Model model) {
         model.addAttribute("name", user.getFullName());
-        Set<Roles> roles = user.getRoles();
-        if (roles.contains(Roles.SYSTEM_ADMIN)) {
-            model.addAttribute("role", "system_admin");
-        } else if (roles.contains(Roles.TEACHER_ADMIN)) {
-            model.addAttribute("role", "teacher_admin");
-        } else if (roles.contains(Roles.TEACHER)) {
-            model.addAttribute("role", "teacher");
-        } else if (roles.contains(Roles.STUDENT)) {
-            model.addAttribute("role", "student");
-        }
+        model.addAttribute("role", auxiliaryService.getRole(user));
 
         return "about_us";
     }

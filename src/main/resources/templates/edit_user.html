@@ -7,17 +7,22 @@
 </head>
 <body>
 
-<header th:insert="parts/system_admin_header :: system_admin_header"></header>
+<header th:insert="parts/system_admin_header :: system_admin_header" th:if="${role} == 'system_admin'"></header>
+<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${role} == 'teacher_admin'"></header>
+<header th:insert="parts/teacher_header :: teacher_header" th:if="${role} == 'teacher'"></header>
+<header th:insert="parts/student_header :: student_header" th:if="${role} == 'student'"></header>
 
-<h4>Изменить данные пользователя [[${user.getFullName()}]]</h4>
+<h4>Изменить данные</h4>
 <p>[[${message}]]</p>
 
 <form th:action="@{/system-admin/edit/{id}(id=${user.getId()})}" method="post">
     <div class="form-group">
-        <div th:each="role : ${roles}">
-            <label><input type="checkbox" th:text="${role}" th:name="${role}" th:checked="${user.getRoles().contains(role)}"/></label>
-        </div>
+        <div><label> Новое имя: <input th:value="${user.getFullName()}" type="text" name="fullName" class="form-control" required/> </label></div>
+        <div><label> Новая почта: <input th:value="${user.getUsername()}" type="email" name="username" class="form-control" required/> </label></div>
+        <div><label> Новый пароль: <input type="password" name="password1" class="form-control" required/> </label></div>
+        <div><label> Старый пароль (подтверждение): <input type="password" name="password2" class="form-control" required/> </label></div>
     </div>
+
     <button type="submit" class="btn btn-primary">Сохранить</button>
 </form>
 

@@ -28,12 +28,12 @@
     <tr th:each="user : ${usersList}">
         <td th:text="${user.getFullName()}" ></td>
         <td th:text="${user.getUsername()}"></td>
-        <td th:text="${user.getRoles()}" th:if="${admin}"></td>
+        <td th:text="${user.getStringRoles()}" th:if="${admin}"></td>
         <div th:if="${!admin}">
             <td th:text="Студент" th:if="${!user.isTeacher()}"></td>
             <td th:text="Учитель" th:if="${user.isTeacher()}"></td>
         </div>
-        <td><div><a th:href="@{/system-admin/edit/{id}(id=${user.getId()})}" class="btn btn-primary" th:if="${admin}">Изменить</a></div></td>
+        <td><div><a th:href="@{/system-admin/edit/{id}(id=${user.getId()})}" class="btn btn-primary" th:if="${sys_admin}">Изменить</a></div></td>
     </tr>
 </table>
 

@@ -29,6 +29,7 @@ public class TeacherService {
     @Autowired
     private EducationGroupRepo educationGroupRepo;
 
+    // Создание ногово теста
     public void addTest(String title, List<String> htmlQuestions, List<String> htmlAnswersOptions,
                         List<String> htmlCorrectAnswers, Module module, List<Integer> marks) {
         List<Boolean> correctAnswers = new ArrayList<>();
@@ -87,6 +88,7 @@ public class TeacherService {
 
     }
 
+    // Статистика успеваемости за тест
     public String[] statistics(List<Integer> allMarks) {
         String[] strings = new String[3];
 
@@ -117,22 +119,7 @@ public class TeacherService {
         return strings;
     }
 
-    public boolean check(User user, EducationGroup educationGroup) {
-
-        for (User u : educationGroup.getStudents()) {
-            if (u.getId() == user.getId()) {
-                return true;
-            }
-        }
-        for (User u : educationGroup.getTeachers()) {
-            if (u.getId() == user.getId()) {
-                return true;
-            }
-        }
-
-        return user.getRoles().contains(Roles.TEACHER_ADMIN);
-    }
-
+    // Создание нового учебного модуля
     public boolean addModule(EducationGroup educationGroup, String title) {
         Set<Module> allModules = educationGroup.getModules();
         // module.title - уникален
@@ -144,6 +131,7 @@ public class TeacherService {
             }
         }
 
+        // Сохранение модуля в БД
         Module module = new Module();
         module.setTitle(title);
         module.setEducationGroup(educationGroup);
