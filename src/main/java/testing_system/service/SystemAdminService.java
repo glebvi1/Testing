@@ -144,7 +144,7 @@ public class SystemAdminService {
             users = userRepo.findAllByFullName(fullName);
         }
 
-        users.removeIf(user -> (user.getRoles().contains(Roles.SYSTEM_ADMIN) || user.getRoles().contains(Roles.TEACHER_ADMIN)));
+        users.removeIf(user -> (user.getRoles().contains(Roles.SYSTEM_ADMIN)));
         return users;
     }
 

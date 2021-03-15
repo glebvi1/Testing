@@ -1,7 +1,7 @@
 package testing_system.service;
 
-import com.sun.mail.smtp.SMTPAddressFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -63,7 +63,6 @@ public class UserService implements UserDetailsService {
         student.setPassword(passwordEncoder.encode(user.getPassword()));
         student.setRoles(Collections.singleton(Roles.STUDENT));
         student.setActivatedCode(UUID.randomUUID().toString());
-        studentRepo.save(student);
 
         String message = String.format(
                 "Уважаемый %s, пожалуйста, перейдите по ссылке для активации аккаунта.\n"+
@@ -72,7 +71,12 @@ public class UserService implements UserDetailsService {
                 student.getActivatedCode()
         );
 
-        mailSender.send("Код активации", student.getUsername(), message);
+        try {
+            mailSender.send("Код активации", student.getUsername(), message);
+        } catch (MailSendException m) {
+            return false;
+        }
+        studentRepo.save(student);
 
         return true;
     }

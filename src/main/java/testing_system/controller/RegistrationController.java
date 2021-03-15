@@ -94,7 +94,7 @@ public class RegistrationController {
 
         } else {
             if (!userService.addUser(user)) {
-                model.addAttribute("message", "Пользователь с такой почтой уже существует!");
+                model.addAttribute("message", "Пользователь с такой почтой уже существует!\nИли такой почты не существует!");
                 return "reg";
             }
         }

@@ -22,6 +22,7 @@ public class MailSender {
         mailMessage.setText(text);
 
         mailSender.send(mailMessage);
+
     }
 }
 

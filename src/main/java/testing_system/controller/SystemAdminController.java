@@ -51,6 +51,15 @@ public class SystemAdminController {
         return "redirect:/teacher-admin/all-users";
     }
 
+    @PostMapping("/del/{id}")
+    public String del(@RequestParam(name = "del") String isDel,
+                      @PathVariable(name = "id") long id) {
+        if (isDel.equals("on")) {
+            userRepo.deleteById(id);
+        }
+        return "redirect:/teacher-admin/all-users";
+    }
+
     @GetMapping("/add-group")
     public String addGroup(Model model) {
 

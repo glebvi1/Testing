@@ -1,6 +1,9 @@
 package testing_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -22,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/teacher-admin")
@@ -34,32 +38,35 @@ public class TeacherAdminController {
     @Autowired
     private SystemAdminService systemAdminService;
     @Autowired
-    private StudentRepo studentRepo;
-    @Autowired
-    private TeacherRepo teacherRepo;
-    @Autowired
     private UserRepo userRepo;
 
     @GetMapping("/all-users")
     public String listUsers(Model model,
                             @RequestParam(required = false) String username,
                             @RequestParam(required = false) String fullName,
-                            @AuthenticationPrincipal User user) {
+                            @AuthenticationPrincipal User user,
+                            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable) {
         model.addAttribute("admin", true);
         if (user.getRoles().contains(Roles.SYSTEM_ADMIN)) {
             model.addAttribute("sys_admin", true);
         }
         if (!StringUtils.isEmpty(username) || !StringUtils.isEmpty(fullName)) {
             model.addAttribute("usersList", systemAdminService.sort(username, fullName));
+            model.addAttribute("one", true);
         } else {
-            List<User> users = new ArrayList<User>();
-            users.addAll(studentRepo.findAll());
-            users.addAll(teacherRepo.findAll());
-            users.addAll(userRepo.findAll().stream()
-                .filter(tUser -> tUser.getRoles().contains(Roles.TEACHER_ADMIN) &&
-                        !tUser.getRoles().contains(Roles.TEACHER))
-                .collect(Collectors.toList()));
-            model.addAttribute("usersList", users);
+
+            List<User> users = userRepo.findAll(pageable)
+                    .stream().filter(tUser -> !tUser.getRoles().contains(Roles.SYSTEM_ADMIN))
+                    .collect(Collectors.toList());
+            Page<User> pages = new PageImpl<>(users);
+            model.addAttribute("one", false);
+            model.addAttribute("usersList", pages);
+            int[] arr = new int[pages.getTotalPages()-1];
+            for (int i = 0; i < pages.getTotalPages()-1; i++) {
+                arr[i]=i+1;
+            }
+            model.addAttribute("arr", new int[]{1,2,3,4,5,6});
+
         }
         return "list_of_users";
     }
