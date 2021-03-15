@@ -7,9 +7,7 @@
 </head>
 <body>
 
-<header th:insert="parts/teacher_header :: teacher_header" th:if="${role} == 'teacher'"></header>
-<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${role} == 'admin'"></header>
-
+<header th:insert="parts/teacher_header :: teacher_header"></header>
 
 <h4>Статистические данные</h4>
 <h6>Лучшая оценка - [[${max}]]</h6>

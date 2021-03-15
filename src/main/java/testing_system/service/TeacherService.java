@@ -31,43 +31,9 @@ public class TeacherService {
 
     // Создание ногово теста
     public void addTest(String title, List<String> htmlQuestions, List<String> htmlAnswersOptions,
-                        List<String> htmlCorrectAnswers, Module module, List<Integer> marks) {
-        List<Boolean> correctAnswers = new ArrayList<>();
-        List<Question> questions = new ArrayList<>();
-
-        for (int i = 0 ; i < htmlCorrectAnswers.size(); i++) {
-            String answer = htmlCorrectAnswers.get(i);
-            if (answer.equals("on")) {
-                correctAnswers.add(true);
-                htmlCorrectAnswers.remove(i + 1);
-            } else {
-                correctAnswers.add(false);
-            }
-        }
-
-        int k = 0;
-        for (String htmlQuestion : htmlQuestions) {
-            Question question = new Question();
-            question.setQuestion(htmlQuestion);
-            List<String> answerOptions = new ArrayList<>();
-            List<Boolean> correctAnswer = new ArrayList<>();
-
-            for (int j = 1; j <= 6; j++) {
-                String answer = htmlAnswersOptions.get(k);
-                boolean isCorrect = correctAnswers.get(k);
-
-                if (!StringUtils.isEmpty(answer)) {
-                    answerOptions.add(answer);
-                    correctAnswer.add(isCorrect);
-                }
-                k++;
-            }
-
-            question.setAnswersOptions(answerOptions);
-            question.setCorrectAnswer(correctAnswer);
-            questionRepo.save(question);
-            questions.add(question);
-        }
+                        List<String> htmlCorrectAnswers, Module module, List<Integer> marks, int section) {
+        List<Boolean> correctAnswers = parseHtmlCheckbox(htmlCorrectAnswers);
+        List<Question> questions = parseHtmlQuestions(htmlQuestions, correctAnswers, htmlAnswersOptions);
 
         Map<Integer, Integer> gradingSystem = new HashMap<>(marks.size());
 
@@ -81,6 +47,7 @@ public class TeacherService {
         test.setQuestions(questions);
         test.setGradingSystem(gradingSystem);
         test.setModule(module);
+        test.setSections(section);
         testRepo.save(test);
 
         module.getTests().add(test);
@@ -141,6 +108,53 @@ public class TeacherService {
         educationGroupRepo.save(educationGroup);
 
         return true;
+    }
+
+    private List<Boolean> parseHtmlCheckbox(List<String> htmlCorrectAnswers) {
+        List<Boolean> correctAnswers = new ArrayList<>();
+
+        for (int i = 0 ; i < htmlCorrectAnswers.size(); i++) {
+            String answer = htmlCorrectAnswers.get(i);
+            if (answer.equals("on")) {
+                correctAnswers.add(true);
+                htmlCorrectAnswers.remove(i + 1);
+            } else {
+                correctAnswers.add(false);
+            }
+        }
+
+        return correctAnswers;
+    }
+
+    private List<Question> parseHtmlQuestions(List<String> htmlQuestions, List<Boolean> correctAnswers,
+                                              List<String> htmlAnswersOptions) {
+        List<Question> questions = new ArrayList<>();
+
+        int k = 0;
+        for (String htmlQuestion : htmlQuestions) {
+            Question question = new Question();
+            question.setQuestion(htmlQuestion);
+            List<String> answerOptions = new ArrayList<>();
+            List<Boolean> correctAnswer = new ArrayList<>();
+
+            for (int j = 1; j <= 6; j++) {
+                String answer = htmlAnswersOptions.get(k);
+                boolean isCorrect = correctAnswers.get(k);
+
+                if (!StringUtils.isEmpty(answer)) {
+                    answerOptions.add(answer);
+                    correctAnswer.add(isCorrect);
+                }
+                k++;
+            }
+
+            question.setAnswersOptions(answerOptions);
+            question.setCorrectAnswer(correctAnswer);
+            questionRepo.save(question);
+            questions.add(question);
+        }
+
+        return questions;
     }
 
 }

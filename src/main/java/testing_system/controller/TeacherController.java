@@ -39,6 +39,9 @@ public class TeacherController {
     @Autowired
     private TeacherRepo teacherRepo;
 
+    private int sectionCount = 5;
+
+    // Группы, в которых пользователь является учителем
     @GetMapping
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String myGroups(Model model,
@@ -59,6 +62,7 @@ public class TeacherController {
         return "all_groups";
     }
 
+    // Все участники группы
     @GetMapping("/course/{id}/all-participants")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String allParticipants(Model model,
@@ -77,6 +81,7 @@ public class TeacherController {
         return "list_of_users";
     }
 
+    // Конкретная группа обучения
     @GetMapping("/course/{id}")
     public String course(@PathVariable(name = "id") EducationGroup educationGroup,
                          Model model,
@@ -98,6 +103,7 @@ public class TeacherController {
         return "course";
     }
 
+    // Добавление модуля в группу обучения
     @PostMapping("/course/{id}")
     @PreAuthorize("hasAuthority('TEACHER')")
     public String addModule(@PathVariable(name = "id") EducationGroup educationGroup,
@@ -122,6 +128,7 @@ public class TeacherController {
         return "course";
     }
 
+    // Конкретный модуль в группе
     @GetMapping("/module/{id}")
     public String module(@PathVariable(name = "id") Module module,
                          Model model,
@@ -142,6 +149,7 @@ public class TeacherController {
         return "module";
     }
 
+    // Добавления теста (get)
     @GetMapping("/module/{id}/add-test")
     @PreAuthorize("hasAuthority('TEACHER')")
     public String addTest(@PathVariable(name = "id") Module module,
@@ -155,19 +163,17 @@ public class TeacherController {
 
         model.addAttribute("module", module);
 
-        if (count == null || count <= 0) {
+        if (count == null || count <= 0 || count > 20) {
+            model.addAttribute("message", "Кол-во вопросов не может быть больше 20.");
             count = 5;
         }
-        int[] numbers = new int[count];
 
-        for (int i = 0; i < count; i++) {
-            numbers[i] = i + 1;
-        }
-        model.addAttribute("count", numbers);
+        model.addAttribute("count", fillArray(count));
 
         return "create_test";
     }
 
+    // Добавления теста (post)
     @PostMapping("/module/{id}/add-test")
     @PreAuthorize("hasAuthority('TEACHER')")
     public String addTest(@RequestParam(name = "title") String title,
@@ -177,7 +183,7 @@ public class TeacherController {
                           @PathVariable(name = "id") Module module,
                           @RequestParam(name = "marks") List<Integer> marks,
                           Model model,
-                          User user) {
+                          @AuthenticationPrincipal User user) {
 
         if (!auxiliaryService.security(user, module.getEducationGroup())) {
             return "error";
@@ -185,9 +191,7 @@ public class TeacherController {
 
         model.addAttribute("module", module);
 
-        Test testFromDb = testRepo.findTestByTitle(title);
-
-        if (testFromDb != null) {
+        if (contains(module, title)) {
             model.addAttribute("message", "Тест с таким названием уже существует.");
             model.addAttribute("questions", htmlQuestions);
             model.addAttribute("answers", htmlAnswersOptions);
@@ -197,11 +201,75 @@ public class TeacherController {
         }
 
         teacherService.addTest(title, htmlQuestions, htmlAnswersOptions, htmlCorrectAnswers,
-                module, marks);
+                module, marks, 0);
 
-        return "redurect:/educated/module/" + module.getId();
+        return "redirect:/educated/module/" + module.getId();
     }
 
+    // Добавления билета (get)
+    @GetMapping("/module/{id}/add-ticket")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public String addTicket(@PathVariable(name = "id") Module module,
+                          @RequestParam(name = "countQuestions", required = false) Integer countQ,
+                          @RequestParam(name = "countSections", required = false) Integer countS,
+                          Model model,
+                          @AuthenticationPrincipal User user) {
+
+        if (!auxiliaryService.security(user, module.getEducationGroup())) {
+            return "error";
+        }
+
+        model.addAttribute("module", module);
+
+        if (countQ == null || countQ <= 1 || countQ > 20) {
+            countQ = 5;
+            model.addAttribute("message", "Кол-во вопросов не может быть больше 20.");
+        }
+        if (countS == null || countS <= 0 || countS > 15) {
+            model.addAttribute("message", "Кол-во разделов не может быть больше 15.");
+            countS = 5;
+        }
+        sectionCount = countS;
+        model.addAttribute("sectionsArr", fillArray(countS));
+        model.addAttribute("questionsArr", fillArray(countQ));
+
+        return "create_ticket";
+    }
+
+    // Добавления билета (post)
+    @PostMapping("/module/{id}/add-ticket")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public String addTicket(@RequestParam(name = "title") String title,
+                            @RequestParam(name = "questions") List<String> htmlQuestions,
+                            @RequestParam(name = "answers") List<String> htmlAnswersOptions,
+                            @RequestParam(name = "isCorrect") List<String> htmlCorrectAnswers,
+                            @PathVariable(name = "id") Module module,
+                            @RequestParam(name = "marks") List<Integer> marks,
+                            Model model,
+                            @AuthenticationPrincipal User user) {
+
+        if (!auxiliaryService.security(user, module.getEducationGroup())) {
+            return "error";
+        }
+
+        model.addAttribute("module", module);
+
+        if (contains(module, title)) {
+            model.addAttribute("message", "Тест с таким названием уже существует.");
+            model.addAttribute("questions", htmlQuestions);
+            model.addAttribute("answers", htmlAnswersOptions);
+            model.addAttribute("isCorrect", htmlCorrectAnswers);
+            model.addAttribute("marks", marks);
+            return "create_ticket";
+        }
+
+        teacherService.addTest(title, htmlQuestions, htmlAnswersOptions, htmlCorrectAnswers,
+                module, marks, sectionCount);
+
+        return "redirect:/educated/module/" + module.getId();
+    }
+
+    // Статистика выполнения теста
     @GetMapping("/test/{id}/statistics")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String statistics(Model model,
@@ -211,8 +279,6 @@ public class TeacherController {
         if (!auxiliaryService.security(user, test.getModule().getEducationGroup())) {
             return "error";
         }
-
-        model.addAttribute("role", auxiliaryService.getRole(user));
 
         List<Integer> allMarks = new ArrayList<>(test.getStudentsMarks().values());
 
@@ -236,6 +302,21 @@ public class TeacherController {
         return "statistics";
     }
 
+    private int[] fillArray(int n) {
+        int[] numbers = new int[n];
+        for (int i = 0; i < n; i++) {
+            numbers[i] = i + 1;
+        }
+        return numbers;
+    }
 
+    private boolean contains(Module module, String title) {
+        for (Test tempTest : module.getTests()) {
+            if (tempTest.getTitle().equals(title)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

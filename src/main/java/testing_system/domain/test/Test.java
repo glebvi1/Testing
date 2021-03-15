@@ -14,6 +14,7 @@ public class Test {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String title;
+    private int sections;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Question> questions;
@@ -78,5 +79,13 @@ public class Test {
 
     public void setModule(Module module) {
         this.module = module;
+    }
+
+    public int getSections() {
+        return sections;
+    }
+
+    public void setSections(int sections) {
+        this.sections = sections;
     }
 }
