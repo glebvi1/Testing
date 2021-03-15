@@ -8,8 +8,7 @@
 <body>
 
 <h4>Вход</h4>
-<p class="text-danger">[[${message}]]</p>
-<p>[[${code}]]</p>
+<p th:class="${color}">[[${message}]]</p>
 
 <form th:action="@{/login}" method="post">
     <div class="form-group">

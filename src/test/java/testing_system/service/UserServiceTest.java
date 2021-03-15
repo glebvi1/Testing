@@ -104,4 +104,36 @@ public class UserServiceTest {
         Mockito.verify(userRepo, Mockito.times(0))
                 .save(ArgumentMatchers.any(User.class));
     }
+
+    @Test
+    public void updateUser() {
+        User user = new User();
+        user.setPassword("123");
+
+        boolean isUpdate = userService.updateUser(user, "new name", "new email", "new password", user.getPassword());
+
+        Assert.assertEquals("new email", user.getUsername());
+        Assert.assertEquals("new name", user.getFullName());
+        Assert.assertEquals("new password", user.getPassword());
+        Assert.assertTrue(isUpdate);
+        Mockito.verify(userRepo, Mockito.times(1)).save(user);
+
+    }
+
+    @Test
+    public void updateUserFailTest() {
+        User user = new User();
+        user.setFullName("name");
+        user.setUsername("email");
+        user.setPassword("123");
+
+        boolean isUpdate = userService.updateUser(user, "new name", "new email", "new password", "456");
+
+        Assert.assertFalse(isUpdate);
+        Assert.assertEquals("email", user.getUsername());
+        Assert.assertEquals("name", user.getFullName());
+        Assert.assertEquals("123", user.getPassword());
+        Mockito.verify(userRepo, Mockito.times(0))
+                .save(ArgumentMatchers.any(User.class));
+    }
 }

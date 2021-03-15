@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,7 +59,7 @@ public class RegistrationController {
                                @RequestParam(name = "g-recaptcha-response") String recaptchaResponse) {
         String url = String.format(RECAPTHCA_API, secret, recaptchaResponse);
         CaptchaResponseDto response = restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
-
+        model.addAttribute("color", "text-danger");
         if (!response.isSuccess()) {
             model.addAttribute("captchaError", "Вы не выбрали это поле!");
             return "reg";
@@ -99,26 +101,29 @@ public class RegistrationController {
                 return "reg";
             }
         }
-        return "redirect:/login";
+
+        model.addAttribute("message", "Вам на почту пришло письмо. Перейдите из него по ссылке, чтобы активировать аккаунт.");
+        model.addAttribute("color", "text-success");
+        return "reg";
     }
 
     @GetMapping("/login")
-    public String login() {return "login";}
+    public String login() {
+        return "login";
+    }
 
     @PostMapping("/login")
-    public String login(User user, Model model) {
+    public String login(User user,
+                        Model model) {
         User userFromDb = userRepo.findByUsername(user.getUsername());
+
         if (userFromDb == null) {
             model.addAttribute("message", "Вы ввели неправильный пароль или почту.");
+            model.addAttribute("color", "text-danger");
             return "login";
         }
-        if (userFromDb.getActivatedCode() != null) {
-            model.addAttribute("message", "Вы не активировали свой аккаунт!");
-            return "login";
-        }
-        model.addAttribute("code", userFromDb.getActivatedCode() + " " + userFromDb.getFullName() + " " + userFromDb.getUsername());
 
-        return "login";
+        return "redirect:/about";
     }
 
     @GetMapping("/activate/{code}")
@@ -126,8 +131,10 @@ public class RegistrationController {
                            @PathVariable String code) {
         if (!userService.isActivated(code)) {
             model.addAttribute("message", "Активационный код не найден.");
+            model.addAttribute("color", "text-danger");
         } else {
             model.addAttribute("message", "Активация аккаунта прошла успешно!");
+            model.addAttribute("color", "text-success");
         }
         return "login";
     }
