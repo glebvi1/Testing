@@ -8,7 +8,9 @@
 <body>
 
 <h4>Вход</h4>
-<p>[[${message}]]</p>
+<p class="text-danger">[[${message}]]</p>
+<p>[[${code}]]</p>
+
 <form th:action="@{/login}" method="post">
     <div class="form-group">
         <div><label> Почта: <input type="email" name="username" class="form-control" required/> </label></div>

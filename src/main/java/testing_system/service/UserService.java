@@ -50,33 +50,32 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
-    public boolean addUser(User user) {
+    public boolean addUser(Student user) {
         User userFromDb = userRepo.findByUsername(user.getUsername());
 
         if (userFromDb != null) {
             return false;
         }
 
-        Student student = new Student();
-        student.setUsername(user.getUsername());
-        student.setFullName(user.getFullName());
-        student.setPassword(passwordEncoder.encode(user.getPassword()));
-        student.setRoles(Collections.singleton(Roles.STUDENT));
-        student.setActivatedCode(UUID.randomUUID().toString());
+        user.setFullName(user.getFullName());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Collections.singleton(Roles.STUDENT));
+        user.setActivatedCode(UUID.randomUUID().toString());
 
         String message = String.format(
                 "Уважаемый %s, пожалуйста, перейдите по ссылке для активации аккаунта.\n"+
                 "http://localhost:8080/activate/%s",
-                student.getFullName(),
-                student.getActivatedCode()
+                user.getFullName(),
+                user.getActivatedCode()
         );
 
+        // Почты не существует
         try {
-            mailSender.send("Код активации", student.getUsername(), message);
+            mailSender.send("Код активации", user.getUsername(), message);
         } catch (MailSendException m) {
             return false;
         }
-        studentRepo.save(student);
+        studentRepo.save(user);
 
         return true;
     }

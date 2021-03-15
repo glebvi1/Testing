@@ -1,5 +1,7 @@
 package testing_system.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,7 +29,6 @@ import java.util.Collections;
 
 @Controller
 public class RegistrationController {
-
     private static final String RECAPTHCA_API = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s";
 
     @Autowired
@@ -52,7 +53,7 @@ public class RegistrationController {
     public String registration() {return "reg";}
 
     @PostMapping("/registr-form")
-    public String registration(User user, Model model,
+    public String registration(Student user, Model model,
                                @RequestParam(name = "g-recaptcha-response") String recaptchaResponse) {
         String url = String.format(RECAPTHCA_API, secret, recaptchaResponse);
         CaptchaResponseDto response = restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
@@ -115,8 +116,9 @@ public class RegistrationController {
             model.addAttribute("message", "Вы не активировали свой аккаунт!");
             return "login";
         }
+        model.addAttribute("code", userFromDb.getActivatedCode() + " " + userFromDb.getFullName() + " " + userFromDb.getUsername());
 
-        return "redirect:/about";
+        return "login";
     }
 
     @GetMapping("/activate/{code}")
