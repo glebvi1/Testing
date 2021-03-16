@@ -109,8 +109,11 @@ public class TeacherServiceTest {
     @Test
     public void addTicket() {
         List<String> htmlQ = new ArrayList<>(Arrays.asList(
-                "11", "12", "21", "22", "31",
-                "32", "41", "42", "51", "52"));
+                "11", "12",
+                "21", "22",
+                "31", "32",
+                "41", "42",
+                "51", "52"));
         List<String> htmlAO = new ArrayList<>(Arrays.asList(
                 "11", "", "", "", "", "",
                 "12", "", "", "", "", "",
@@ -150,6 +153,54 @@ public class TeacherServiceTest {
 
         Mockito.verify(testRepo, Mockito.times(1))
                 .save(ArgumentMatchers.any(testing_system.domain.test.Test.class));
+
+    }
+
+    @Test
+    public void addTicketTranspose() {
+        List<String> htmlQ = new ArrayList<>(Arrays.asList(
+                "11", "12", "13", "14", "15",
+                "21", "22", "23", "24", "25"));
+        List<String> htmlAO = new ArrayList<>(Arrays.asList(
+                "11", "", "", "", "", "",
+                "12", "", "", "", "", "",
+                "13", "", "", "", "", "",
+                "14", "", "", "", "", "",
+                "15", "", "", "", "", "",
+                "21", "", "", "", "", "",
+                "22", "", "", "", "", "",
+                "23", "", "", "", "", "",
+                "24", "", "", "", "", "",
+                "25", "", "", "", "", ""));
+        List<String> htmlCA = new ArrayList<>(Arrays.asList(
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off",
+                "on", "off", "off", "off", "off", "off", "off"
+        ));
+        Module module = new Module();
+        module.setTests(new HashSet<>());
+        List<Integer> marks = new ArrayList<>(Arrays.asList(100, 80, 60));
+
+        teacherService.addTest(
+                "Test", htmlQ, htmlAO, htmlCA, module, marks, 2
+        );
+
+        Mockito.verify(questionRepo, Mockito.times(10))
+                .save(ArgumentMatchers.any(Question.class));
+
+        Mockito.verify(moduleRepo, Mockito.times(1))
+                .save(ArgumentMatchers.any(Module.class));
+
+        Mockito.verify(testRepo, Mockito.times(1))
+                .save(ArgumentMatchers.any(testing_system.domain.test.Test.class));
+
 
     }
 

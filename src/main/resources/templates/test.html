@@ -18,7 +18,7 @@
         <p>Вопрос №[[${index.index} + 1]]</p>
         <p>[[${question.getQuestion()}]]</p>
         <div class="form-group mt-3" th:if="${question.getAnswersOptions().size()} == 1">
-            <label>Ответ: <input type="text" th:name="answers" placeholder="Введите ответ: " required/></label>
+            <label>Ответ: <input class="form-control" type="text" th:name="answers" placeholder="Введите ответ: " required/></label>
         </div>
 
         <div class="form-group mt-3" th:if="${question.getAnswersOptions().size()} != 1">

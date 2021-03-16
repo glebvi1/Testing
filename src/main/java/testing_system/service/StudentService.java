@@ -57,7 +57,8 @@ public class StudentService {
 
         // Отправка письма учителю (только в то случае, если все студенты прошли данный тест)
         EducationGroup group = test.getModule().getEducationGroup();
-        if (group.getStudents().size() == test.getStudentsMarks().size()) {
+        int size = group.getStudents().size();
+        if (size == test.getStudentsMarks().size()) {
             String url = "http://localhost:8080/educated/test/" + test.getId() + "/statistics";
             for (Teacher teacher : group.getTeachers()) {
                 mes = String.format(
@@ -88,7 +89,7 @@ public class StudentService {
             for (int j = 0; j < section; j++) {
                 tempQuestions.add(test.getQuestions().get(i + j));
             }
-            int randomQ = (int)( Math.random() * (section - 1));
+            int randomQ = (int)(Math.random() * (section - 1));
             newTest.getQuestions().add(tempQuestions.get(randomQ));
         }
 

@@ -14,6 +14,10 @@ public class Teacher extends User {
 
     public Teacher() {}
 
+    public Teacher(String username) {
+        super(username);
+    }
+
     public List<EducationGroup> getGroups() {
         return groups;
     }
