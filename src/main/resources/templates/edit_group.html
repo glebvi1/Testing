@@ -14,7 +14,7 @@
 
 <form th:action="@{/teacher-admin/all-groups/edit/{id}(id=${id})}" method="post">
     <div class="form-group">
-        <div><label>Название: <input placeholder="Название группы: " name="title" type="text" class="form-control" maxlength="100" required/></label></div>
+        <div><label>Название: <input placeholder="Название группы: " name="title" type="text" th:value="${groupName}" class="form-control" maxlength="100" required/></label></div>
         <label>Список студентов: </label>
 
         <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">

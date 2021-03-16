@@ -54,12 +54,17 @@ public class SystemAdminService {
         }
 
         Set<Roles> roles = user.getRoles();
-        if (roles.contains(Roles.STUDENT) && roles.contains(Roles.TEACHER) ||
-                (roles.contains(Roles.STUDENT) && roles.contains(Roles.TEACHER_ADMIN))) {
+        boolean isTeacherAdmin = roles.contains(Roles.TEACHER_ADMIN);
+        boolean isTeacher = roles.contains(Roles.TEACHER);
+        boolean isStudent = roles.contains(Roles.STUDENT);
+        boolean isSysAdmin = roles.contains(Roles.SYSTEM_ADMIN);
+        if (isStudent && isTeacher ||
+                (isStudent && isTeacherAdmin) ||
+                (isSysAdmin && (isTeacher || isTeacherAdmin))) {
             return false;
         }
 
-        if (roles.contains(Roles.TEACHER)) {
+        if (isTeacher) {
             Teacher newUser = new Teacher();
             newUser.setUsername(user.getUsername());
             newUser.setPassword(user.getPassword());
@@ -71,7 +76,7 @@ public class SystemAdminService {
             }
             userRepo.delete(user);
             teacherRepo.save(newUser);
-        } else if (roles.contains(Roles.STUDENT)) {
+        } else if (isStudent) {
             Student newUser = new Student();
             newUser.setUsername(user.getUsername());
             newUser.setPassword(user.getPassword());
@@ -83,7 +88,7 @@ public class SystemAdminService {
             }
             userRepo.delete(user);
             studentRepo.save(newUser);
-        } else if (roles.contains(Roles.TEACHER_ADMIN) || roles.contains(Roles.SYSTEM_ADMIN)) {
+        } else if (isTeacherAdmin || isSysAdmin) {
             User newUser = new User();
             newUser.setUsername(user.getUsername());
             newUser.setPassword(user.getPassword());

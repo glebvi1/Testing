@@ -89,6 +89,7 @@ public class TeacherAdminController {
                             @AuthenticationPrincipal User user) {
         model.addAttribute("id", educationGroup.getId());
         model.addAttribute("role", auxiliaryService.getRole(user));
+        model.addAttribute("groupName", educationGroup.getTitle());
 
         int countS = educationGroup.getStudents().size();
         int[] studentsNumbers = new int[30 - countS];
@@ -119,6 +120,7 @@ public class TeacherAdminController {
         if (!systemAdminService.updateEducationGroup(studentsEmails, teachersEmails, title, educationGroup)) {
             model.addAttribute("message", "Проверьте поля ввода.");
             model.addAttribute("role", auxiliaryService.getRole(user));
+            model.addAttribute("groupName", educationGroup.getTitle());
             return "edit_group";
         }
 

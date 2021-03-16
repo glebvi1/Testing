@@ -10,9 +10,8 @@ import testing_system.domain.test.Test;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.test.TestRepo;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -28,8 +27,9 @@ public class StudentService {
 
         int countOfCorrectAnswers = parseHtml(test.getQuestions(), htmlAnswers);
 
-        Map<Integer, Integer> marks = test.getGradingSystem();
-        int mark = putMark(marks,countOfCorrectAnswers / test.getQuestions().size() * 100);
+        Map<Integer, Float> marks = test.getGradingSystem();
+
+        int mark = putMark(marks,(float) countOfCorrectAnswers / (float) test.getQuestions().size());
 
         // Сохранение оценки в БД
         Map<Long, Integer> studentsMarks = test.getStudentsMarks();
@@ -61,7 +61,7 @@ public class StudentService {
             String url = "http://localhost:8080/educated/test/" + test.getId() + "/statistics";
             for (Teacher teacher : group.getTeachers()) {
                 mes = String.format(
-                        "Уважаемый, %s"+
+                        "Уважаемый %s"+
                                 "Тест %s выполнен всеми студентами. Результаты Вы можете посмотреть на %s",
                         teacher.getFullName(),
                         test.getTitle(),
@@ -70,22 +70,42 @@ public class StudentService {
                 mailSender.send("Прохождение теста", teacher.getUsername(), mes);
             }
         }
-
         return mark;
     }
 
-    // Возращает оценку за тест
-    private int putMark(Map<Integer, Integer> marks, double currentMark) {
+    // Состовляем из билета тест
+    public Test createTestFromTicket(Test test) {
+        Test newTest = new Test();
+        newTest.setQuestions(new ArrayList<Question>());
+        newTest.setSections(test.getSections());
+        newTest.setTitle(test.getTitle());
+        newTest.setId(test.getId());
 
-        int five = marks.get(5);
+        int section = test.getQuestions().size() / test.getSections();
+
+        for (int i = 0; i < test.getQuestions().size(); i += section) {
+            List<Question> tempQuestions = new ArrayList<>();
+            for (int j = 0; j < section; j++) {
+                tempQuestions.add(test.getQuestions().get(i + j));
+            }
+            int randomQ = (int)( Math.random() * (section - 1));
+            newTest.getQuestions().add(tempQuestions.get(randomQ));
+        }
+
+        return newTest;
+    }
+
+    // Возращает оценку за тест
+    private int putMark(Map<Integer, Float> marks, double currentMark) {
+        float five = (float) marks.get(5) / 100;
         if (currentMark >= five) {
             return 5;
         } else {
-            int four = marks.get(4);
+            float four = (float) marks.get(4) / 100;
             if (currentMark >= four) {
                 return 4;
             } else {
-                int three = marks.get(3);
+                float three = (float) marks.get(3) / 100;
                 if (currentMark >= three) {
                     return 3;
                 }
@@ -95,6 +115,7 @@ public class StudentService {
     }
 
     // Парсинг html (данных, полученных с клиента)
+    // Подсчет правильных ответов
     private int parseHtml(List<Question> questions, List<String> htmlAnswers) {
         int countOfCorrectAnswers = 0;
         int index = 0;

@@ -35,11 +35,11 @@ public class TeacherService {
         List<Boolean> correctAnswers = parseHtmlCheckbox(htmlCorrectAnswers);
         List<Question> questions = parseHtmlQuestions(htmlQuestions, correctAnswers, htmlAnswersOptions);
 
-        Map<Integer, Integer> gradingSystem = new HashMap<>(marks.size());
+        Map<Integer, Float> gradingSystem = new HashMap<>(marks.size());
 
         int index = 0;
         for (int i = 5; i >= 3; i--) {
-            gradingSystem.put(i, marks.get(index));
+            gradingSystem.put(i, (float) ((float) marks.get(index) / 100.0));
         }
 
         Test test = new Test();
@@ -153,8 +153,21 @@ public class TeacherService {
             questionRepo.save(question);
             questions.add(question);
         }
-
+        questions.removeIf(x -> contains2(questions, x.getId()));
         return questions;
+    }
+
+    private boolean contains2(List<Question> questions, long id) {
+        int count = 0;
+        for (Question question : questions) {
+            if (count >= 2) {
+                return true;
+            }
+            if (question.getId() == id) {
+                count++;
+            }
+        }
+        return count >= 2;
     }
 
 }

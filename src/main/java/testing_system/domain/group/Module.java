@@ -23,6 +23,10 @@ public class Module {
 
     public Module() {}
 
+    public Module(String title) {
+        this.title = title;
+    }
+
     public long getId() {
         return id;
     }

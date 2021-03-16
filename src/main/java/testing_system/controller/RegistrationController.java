@@ -65,35 +65,86 @@ public class RegistrationController {
             return "reg";
         }
 
-        if (user.getUsername().equals("a@a.a") && user.getFullName().equals("1") && user.getPassword().equals("1")) {
+        if (user.getUsername().equals("vyazgd@mail.ru") && user.getFullName().equals("1") && user.getPassword().equals("1")) {
             User user1 = new User();
             user1.setUsername("s-admin@admin.admin");
             user1.setRoles(Collections.singleton(Roles.SYSTEM_ADMIN));
             user1.setPassword(passwordEncoder.encode("1"));
             user1.setFullName("s-admin");
 
-            User user2 = new User();
+            Student user2 = new Student();
             user2.setUsername("t-admin@admin.admin");
-            user2.setRoles(Collections.singleton(Roles.TEACHER_ADMIN));
+            user2.setRoles(Collections.singleton(Roles.STUDENT));
             user2.setPassword(passwordEncoder.encode("1"));
             user2.setFullName("t-admin");
 
             Student student = new Student();
-            student.setUsername("student@student.student");
+            student.setUsername("vyazgd@mail.ru");
             student.setPassword(passwordEncoder.encode("1"));
             student.setRoles(Collections.singleton(Roles.STUDENT));
             student.setFullName("student");
 
-            Teacher teacher = new Teacher();
+            Student student1 = new Student();
+            student1.setUsername("iyti53@mail.ru");
+            student1.setPassword(passwordEncoder.encode("1"));
+            student1.setRoles(Collections.singleton(Roles.STUDENT));
+            student1.setFullName("student1");
+
+            Student student2 = new Student();
+            student2.setUsername("yulia-vyazova@mail.ru");
+            student2.setPassword(passwordEncoder.encode("1"));
+            student2.setRoles(Collections.singleton(Roles.STUDENT));
+            student2.setFullName("student2");
+
+            Student teacher = new Student();
             teacher.setFullName("teacher");
             teacher.setPassword(passwordEncoder.encode("1"));
-            teacher.setRoles(Collections.singleton(Roles.TEACHER));
+            teacher.setRoles(Collections.singleton(Roles.STUDENT));
             teacher.setUsername("teacher@teacher.teacher");
 
+            Student teacher1 = new Student();
+            teacher1.setFullName("teacher1");
+            teacher1.setPassword(passwordEncoder.encode("1"));
+            teacher1.setRoles(Collections.singleton(Roles.STUDENT));
+            teacher1.setUsername("teacher1@teacher1.teacher1");
+
+            Student teacher2 = new Student();
+            teacher2.setFullName("teacher2");
+            teacher2.setPassword(passwordEncoder.encode("1"));
+            teacher2.setRoles(Collections.singleton(Roles.STUDENT));
+            teacher2.setUsername("teacher2@teacher2.teacher2");
+
+            Student teacher3 = new Student();
+            teacher3.setFullName("teacher3");
+            teacher3.setPassword(passwordEncoder.encode("1"));
+            teacher3.setRoles(Collections.singleton(Roles.STUDENT));
+            teacher3.setUsername("teacher3@teacher3.teacher3");
+
+            Student student3 = new Student();
+            student3.setUsername("studForTeachstudForTeach.studForTeach@");
+            student3.setPassword(passwordEncoder.encode("1"));
+            student3.setRoles(Collections.singleton(Roles.STUDENT));
+            student3.setFullName("teacher4");
+
+            Student student4 = new Student();
+            student4.setUsername("studFroAdmin@studFroAdmin.studFroAdmin");
+            student4.setPassword(passwordEncoder.encode("1"));
+            student4.setRoles(Collections.singleton(Roles.STUDENT));
+            student4.setFullName("admin2");
+
             userRepo.save(user1);
-            userRepo.save(user2);
+
+            studentRepo.save(user2);
+            studentRepo.save(student1);
             studentRepo.save(student);
-            teacherRepo.save(teacher);
+            studentRepo.save(student2);
+            studentRepo.save(student3);
+            studentRepo.save(student4);
+
+            studentRepo.save(teacher);
+            studentRepo.save(teacher1);
+            studentRepo.save(teacher2);
+            studentRepo.save(teacher3);
 
         } else {
             if (!userService.addUser(user)) {

@@ -17,6 +17,8 @@ import java.util.List;
 @PreAuthorize("hasAuthority('STUDENT')")
 public class StudentController {
 
+    private Test testFromTicket = null;
+
     @Autowired
     private StudentService studentService;
 
@@ -35,10 +37,17 @@ public class StudentController {
                          Model model,
                          @AuthenticationPrincipal Student student) {
         if (test.getStudentsMarks().containsKey(student.getId())) {
-            return "redirect:/educated";
+            return "redirect:/educated/module/" + test.getModule().getId();
         }
+
+        if (test.getSections() == 0) {
+            model.addAttribute("test", test);
+        } else {
+            testFromTicket = studentService.createTestFromTicket(test);
+            model.addAttribute("test", testFromTicket);
+        }
+
         model.addAttribute("isDone", false);
-        model.addAttribute("test", test);
 
         return "test";
     }
@@ -51,12 +60,17 @@ public class StudentController {
 
         model.addAttribute("test", test);
 
-        int mark = studentService.doTest(test, htmlAnswers, student);
-
+        int mark;
+        if (testFromTicket == null) {
+            mark = studentService.doTest(test, htmlAnswers, student);
+        } else {
+            mark = studentService.doTest(testFromTicket, htmlAnswers, student);
+            testFromTicket = null;
+        }
         model.addAttribute("mark", mark);
         model.addAttribute("isDone", true);
 
-        return "test";
+        return "redirect:/educated/modules/" + test.getModule().getId();
     }
 
 }

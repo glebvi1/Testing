@@ -11,6 +11,7 @@ import testing_system.domain.group.Module;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Teacher;
 import testing_system.domain.people.User;
+import testing_system.domain.test.Question;
 import testing_system.domain.test.Test;
 import testing_system.repos.group.EducationGroupRepo;
 import testing_system.repos.group.ModuleRepo;
@@ -30,8 +31,6 @@ import java.util.Set;
 public class TeacherController {
     @Autowired
     private TeacherService teacherService;
-    @Autowired
-    private TestRepo testRepo;
     @Autowired
     private UserRepo userRepo;
     @Autowired
@@ -77,6 +76,7 @@ public class TeacherController {
         list.addAll(educationGroup.getStudents());
         list.addAll(educationGroup.getTeachers());
         model.addAttribute("usersList", list);
+        model.addAttribute("one", true);
 
         return "list_of_users";
     }
@@ -284,7 +284,6 @@ public class TeacherController {
 
         if (allMarks.size() != 0) {
             String[] strings = teacherService.statistics(allMarks);
-
             model.addAttribute("max", strings[0]);
             model.addAttribute("min", strings[1]);
             model.addAttribute("mean", strings[2]);
@@ -298,6 +297,16 @@ public class TeacherController {
 
         model.addAttribute("allMarks", allMarks);
         model.addAttribute("users", users);
+        List<Question> questions = test.getQuestions();
+        questions.removeIf(x -> contains2(questions, x.getId()));
+
+        model.addAttribute("questions", questions);
+        model.addAttribute("correct", getCorrectAnswers(questions));
+        model.addAttribute("test", test);
+        if (test.getSections() != 0) {
+            model.addAttribute("div1", test.getQuestions().size() / test.getSections());
+        }
+        model.addAttribute("module", test.getModule());
 
         return "statistics";
     }
@@ -317,6 +326,42 @@ public class TeacherController {
             }
         }
         return false;
+    }
+
+    private List<String> getCorrectAnswers(List<Question> questions) {
+        List<String> answers = new ArrayList<>();
+
+        for (Question question : questions) {
+            List<String> answersOptions = question.getAnswersOptions();
+            if (answersOptions.size() == 1) {
+                answers.add(answersOptions.get(0));
+            } else {
+                List<Boolean> correctAnswers = question.getCorrectAnswer();
+                String cor = "";
+
+                for (int i = 0; i < answersOptions.size(); i++) {
+                    if (correctAnswers.get(i)) {
+                        cor += answersOptions.get(i) + ", ";
+                    }
+                }
+                answers.add(cor.substring(0, cor.length() - 2));
+            }
+        }
+
+        return answers;
+    }
+
+    private boolean contains2(List<Question> questions, long id) {
+        int count = 0;
+        for (Question question : questions) {
+            if (count >= 2) {
+                return true;
+            }
+            if (question.getId() == id) {
+                count++;
+            }
+        }
+        return count >= 2;
     }
 
 }

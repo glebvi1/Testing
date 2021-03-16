@@ -1,5 +1,8 @@
 package testing_system.domain.test;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -12,7 +15,7 @@ public class Question {
     private long id;
     private String question;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> answersOptions;
 
     @ElementCollection
@@ -50,5 +53,13 @@ public class Question {
 
     public void setCorrectAnswer(List<Boolean> correctAnswer) {
         this.correctAnswer = correctAnswer;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Question) {
+            return id == ((Question) obj).getId();
+        }
+        return false;
     }
 }
