@@ -26,7 +26,7 @@ public class Test {
 
     // Система оценивания (5 - 100%, 4 - 75% и т д)
     @ElementCollection(fetch = FetchType.LAZY)
-    private Map<Integer, Float> gradingSystem;
+    private Map<Integer, Integer> gradingSystem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Module module;
@@ -65,11 +65,11 @@ public class Test {
         this.studentsMarks = studentsMarks;
     }
 
-    public Map<Integer, Float> getGradingSystem() {
+    public Map<Integer, Integer> getGradingSystem() {
         return gradingSystem;
     }
 
-    public void setGradingSystem(Map<Integer, Float> gradingSystem) {
+    public void setGradingSystem(Map<Integer, Integer> gradingSystem) {
         this.gradingSystem = gradingSystem;
     }
 

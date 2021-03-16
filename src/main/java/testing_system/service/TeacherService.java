@@ -35,11 +35,12 @@ public class TeacherService {
         List<Boolean> correctAnswers = parseHtmlCheckbox(htmlCorrectAnswers);
         List<Question> questions = parseHtmlQuestions(htmlQuestions, correctAnswers, htmlAnswersOptions);
 
-        Map<Integer, Float> gradingSystem = new HashMap<>(marks.size());
+        Map<Integer, Integer> gradingSystem = new HashMap<>(marks.size());
 
-        int index = 0;
-        for (int i = 5; i >= 3; i--) {
-            gradingSystem.put(i, (float) ((float) marks.get(index) / 100.0));
+        int k = 5;
+        for (int i = 0; i < 3; i++) {
+            gradingSystem.put(k, marks.get(i));
+            k--;
         }
 
         Test test = new Test();

@@ -27,7 +27,7 @@ public class StudentService {
 
         int countOfCorrectAnswers = parseHtml(test.getQuestions(), htmlAnswers);
 
-        Map<Integer, Float> marks = test.getGradingSystem();
+        Map<Integer, Integer> marks = test.getGradingSystem();
 
         int mark = putMark(marks,(float) countOfCorrectAnswers / (float) test.getQuestions().size());
 
@@ -96,7 +96,7 @@ public class StudentService {
     }
 
     // Возращает оценку за тест
-    private int putMark(Map<Integer, Float> marks, double currentMark) {
+    private int putMark(Map<Integer, Integer> marks, double currentMark) {
         float five = (float) marks.get(5) / 100;
         if (currentMark >= five) {
             return 5;
