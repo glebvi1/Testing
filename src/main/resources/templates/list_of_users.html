@@ -56,17 +56,20 @@
             <a class="page-link" href="#" tabindex="-1">Страницы</a>
         </li>
         <div th:each="p : ${arr}">
-            <div th:if="${p - 1} == ${usersList.getNumber()}">
-                <li class="page-item active">
-                    <a class="page-link" href="#" tabindex="-1">[[${p}]]</a>
+<!--            <div th:if="${p - 1} == ${usersList.getNumber()}">
+                <li class="page-item">
+                    <a class="page-link" th:href="@{/teacher-admin/all-users(page=${p-1})}" tabindex="-1">[[${p}]]</a>
                 </li>
             </div>
 
             <div th:if="${p - 1} != ${usersList.getNumber()}">
                 <li class="page-item">
-                    <a class="page-link" th:href="@{/teacher-admin/all-users(page=${p-1}})}" tabindex="-1">[[${p}]]</a>
+                    <a class="page-link" th:href="@{/teacher-admin/all-users(page=${p-1})}" tabindex="-1">[[${p}]]</a>
                 </li>
-            </div>
+            </div>-->
+            <li class="page-item">
+                <a class="page-link" th:href="@{/teacher-admin/all-users(page=${p-1})}" tabindex="-1">[[${p}]]</a>
+            </li>
         </div>
 
     </ul>

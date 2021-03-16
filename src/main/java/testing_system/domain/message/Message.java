@@ -18,6 +18,14 @@ public class Message {
 
     public Message(){}
 
+    public Message(long id, String theme, String text, String userEmail, String userName) {
+        this.id = id;
+        this.theme = theme;
+        this.text = text;
+        this.userEmail = userEmail;
+        this.userName = userName;
+    }
+
     public Long getId() {
         return id;
     }

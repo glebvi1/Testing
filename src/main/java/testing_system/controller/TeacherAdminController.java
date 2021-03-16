@@ -1,9 +1,11 @@
 package testing_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -14,18 +16,12 @@ import testing_system.domain.group.EducationGroup;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.User;
 import testing_system.repos.group.EducationGroupRepo;
-import testing_system.repos.people.StudentRepo;
-import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
 import testing_system.service.AuxiliaryService;
 import testing_system.service.SystemAdminService;
-import testing_system.service.UserService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/teacher-admin")
@@ -54,19 +50,22 @@ public class TeacherAdminController {
             model.addAttribute("usersList", systemAdminService.sort(username, fullName));
             model.addAttribute("one", true);
         } else {
-
             List<User> users = userRepo.findAll(pageable)
                     .stream().filter(tUser -> !tUser.getRoles().contains(Roles.SYSTEM_ADMIN))
                     .collect(Collectors.toList());
             Page<User> pages = new PageImpl<>(users);
             model.addAttribute("one", false);
             model.addAttribute("usersList", pages);
-            int[] arr = new int[pages.getTotalPages()-1];
-            for (int i = 0; i < pages.getTotalPages()-1; i++) {
-                arr[i]=i+1;
+            int n = pages.getTotalPages();
+            if (n > 1) {
+                int[] arr = new int[pages.getTotalPages() - 1];
+                for (int i = 0; i < pages.getTotalPages() - 1; i++) {
+                    arr[i] = i + 1;
+                }
+                model.addAttribute("arr", arr);
+            } else {
+                model.addAttribute("arr", new int[]{1,2,3,4,5,6});
             }
-            model.addAttribute("arr", new int[]{1,2,3,4,5,6});
-
         }
         return "list_of_users";
     }

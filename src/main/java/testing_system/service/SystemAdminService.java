@@ -33,6 +33,7 @@ public class SystemAdminService {
     @Autowired
     private MessageRepo messageRepo;
 
+    // Изменение роли пользователя
     public boolean editUser(User user, Map<String, String> htmlRoles) {
         if (htmlRoles.isEmpty()) {
             return false;
@@ -60,7 +61,7 @@ public class SystemAdminService {
         boolean isSysAdmin = roles.contains(Roles.SYSTEM_ADMIN);
         if (isStudent && isTeacher ||
                 (isStudent && isTeacherAdmin) ||
-                (isSysAdmin && (isTeacher || isTeacherAdmin))) {
+                (isSysAdmin && (isTeacher || isTeacherAdmin || isStudent))) {
             return false;
         }
 
@@ -99,45 +100,10 @@ public class SystemAdminService {
             userRepo.save(newUser);
         }
 
-/*
-        if (roles.contains(Roles.TEACHER_ADMIN) || roles.contains(Roles.SYSTEM_ADMIN)) {
-            User newUser = new User();
-            newUser.setUsername(user.getUsername());
-            newUser.setPassword(user.getPassword());
-            newUser.setFullName(user.getFullName());
-            newUser.setRoles(roles);
-
-            if (oldRole == 1) {
-                studentRepo.deleteById(user.getId());
-            } else if (oldRole == 2) {
-                teacherRepo.deleteById(user.getId());
-            }
-            userRepo.save(newUser);
-
-        } else if (roles.contains(Roles.TEACHER)) {
-            Teacher teacher = new Teacher();
-            teacher.setRoles(roles);
-            teacher.setPassword(user.getPassword());
-            teacher.setUsername(user.getUsername());
-            teacher.setFullName(user.getFullName());
-
-            userRepo.delete(user);
-            teacherRepo.save(teacher);
-
-        } else if (roles.contains(Roles.STUDENT)) {
-            Student student = new Student();
-            student.setRoles(roles);
-            student.setPassword(user.getPassword());
-            student.setUsername(user.getUsername());
-            student.setFullName(user.getFullName());
-
-            userRepo.delete(user);
-            studentRepo.save(student);
-        }
-*/
         return true;
     }
 
+    // Поиск пользователей с заданой почтой и именем
     public List<User> sort(String username, String fullName) {
         List<User> users = new ArrayList<>();
 
@@ -149,7 +115,12 @@ public class SystemAdminService {
             users = userRepo.findAllByFullName(fullName);
         }
 
-        users.removeIf(user -> (user.getRoles().contains(Roles.SYSTEM_ADMIN)));
+        if (users == null || users.contains(null)) {
+            return null;
+        }
+        if (users.size() != 0) {
+            users.removeIf(user -> (user.getRoles().contains(Roles.SYSTEM_ADMIN)));
+        }
         return users;
     }
 
@@ -180,7 +151,6 @@ public class SystemAdminService {
         educationGroup.setStudents(students);
         educationGroupRepo.save(educationGroup);
 
-
         // Добавляем группу к пользователям
         for (Student student : students) {
             student.getGroups().add(educationGroup);
@@ -194,6 +164,7 @@ public class SystemAdminService {
         return true;
     }
 
+    // Обновление состава группы
     public boolean updateEducationGroup(List<String> studentsEmails, List<String> teachersEmails,
                                         String title, EducationGroup oldEducationGroup) {
 
@@ -204,11 +175,17 @@ public class SystemAdminService {
         // Добавляем студентов в список
         List<Student> students = oldEducationGroup.getStudents();
         List<Student> newStudents = getStudent(studentsEmails);
+        if (newStudents.size() == 0) {
+            return false;
+        }
         students.addAll(newStudents);
 
         // Добавляем учителей в список
         List<Teacher> teachers = oldEducationGroup.getTeachers();
         List<Teacher> newTeachers = getTeacher(teachersEmails);
+        if (newTeachers.size() == 0) {
+            return false;
+        }
         teachers.addAll(newTeachers);
 
         // Создаем группу
@@ -261,7 +238,6 @@ public class SystemAdminService {
             }
             Student student = studentRepo.findByUsername(email);
             if (student == null) {
-                // TODO: 1. сохранять форму; указать на ошибочную почту 2. сделать ф-ию editEducationGroup
                 continue;
             }
             students.add(student);

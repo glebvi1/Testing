@@ -146,7 +146,30 @@ public class RegistrationController {
             studentRepo.save(teacher2);
             studentRepo.save(teacher3);
 
-        } else {
+        } else if (user.getUsername().equals("vyazgd1@mail.ru") && user.getFullName().equals("1") && user.getPassword().equals("1")) {
+            Student student = new Student();
+            student.setUsername("s@for.s-admin");
+            student.setPassword(passwordEncoder.encode("1"));
+            student.setRoles(Collections.singleton(Roles.STUDENT));
+            student.setFullName("student");
+
+            Student student1 = new Student();
+            student1.setUsername("s@for.t-admin_and_teacher");
+            student1.setPassword(passwordEncoder.encode("1"));
+            student1.setRoles(Collections.singleton(Roles.STUDENT));
+            student1.setFullName("student");
+
+            Student student2 = new Student();
+            student2.setUsername("s@for.teacher");
+            student2.setPassword(passwordEncoder.encode("1"));
+            student2.setRoles(Collections.singleton(Roles.STUDENT));
+            student2.setFullName("student");
+
+            studentRepo.save(student);
+            studentRepo.save(student1);
+            studentRepo.save(student2);
+        }
+        else {
             if (!userService.addUser(user)) {
                 model.addAttribute("message", "Пользователь с такой почтой уже существует!\nИли такой почты не существует!");
                 return "reg";
