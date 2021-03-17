@@ -11,9 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
+import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Student;
-import testing_system.domain.people.User;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.people.UserRepo;
 
@@ -21,7 +21,7 @@ import java.util.Collections;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class UserServiceTest {
+public class UsersServiceTest {
     @Autowired
     private UserService userService;
     @MockBean
@@ -81,7 +81,7 @@ public class UserServiceTest {
 
     @Test
     public void isActivated() {
-        User user = new User();
+        Users user = new Users();
 
         user.setActivatedCode("123");
 
@@ -102,12 +102,12 @@ public class UserServiceTest {
         boolean isUserActivated = userService.isActivated("123");
         Assert.assertFalse(isUserActivated);
         Mockito.verify(userRepo, Mockito.times(0))
-                .save(ArgumentMatchers.any(User.class));
+                .save(ArgumentMatchers.any(Users.class));
     }
 
     @Test
     public void updateUser() {
-        User user = new User();
+        Users user = new Users();
         user.setPassword("123");
 
         boolean isUpdate = userService.updateUser(user, "new name", "new email", "new password", user.getPassword());
@@ -122,7 +122,7 @@ public class UserServiceTest {
 
     @Test
     public void updateUserFailTest() {
-        User user = new User();
+        Users user = new Users();
         user.setFullName("name");
         user.setUsername("email");
         user.setPassword("123");
@@ -134,6 +134,6 @@ public class UserServiceTest {
         Assert.assertEquals("name", user.getFullName());
         Assert.assertEquals("123", user.getPassword());
         Mockito.verify(userRepo, Mockito.times(0))
-                .save(ArgumentMatchers.any(User.class));
+                .save(ArgumentMatchers.any(Users.class));
     }
 }

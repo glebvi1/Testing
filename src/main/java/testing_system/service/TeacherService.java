@@ -5,14 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.group.Module;
-import testing_system.domain.people.Roles;
-import testing_system.domain.people.User;
 import testing_system.domain.test.Question;
 import testing_system.domain.test.Test;
 import testing_system.repos.group.EducationGroupRepo;
 import testing_system.repos.group.ModuleRepo;
-import testing_system.repos.people.StudentRepo;
-import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.test.QuestionRepo;
 import testing_system.repos.test.TestRepo;
 

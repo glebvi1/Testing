@@ -7,9 +7,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Student;
-import testing_system.domain.people.User;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.people.UserRepo;
 
@@ -29,7 +29,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepo.findByUsername(username);
+        Users user = userRepo.findByUsername(username);
         if (user == null || user.getActivatedCode() != null) {
             throw new UsernameNotFoundException(
                     "No user found with username: " + username);
@@ -37,21 +37,21 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    public boolean updateUser(User user, String newName, String newEmail, String newPassword, String confirmPassword) {
+    public boolean updateUser(Users user, String newName, String newEmail, String newPassword, String confirmPassword) {
         if (!user.getPassword().equals(confirmPassword)) {
             return false;
         }
 
         user.setFullName(newName);
         user.setUsername(newEmail);
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepo.save(user);
 
         return true;
     }
 
     public boolean addUser(Student user) {
-        User userFromDb = userRepo.findByUsername(user.getUsername());
+        Users userFromDb = userRepo.findByUsername(user.getUsername());
 
         if (userFromDb != null) {
             return false;
@@ -81,7 +81,7 @@ public class UserService implements UserDetailsService {
     }
 
     public boolean isActivated(String code) {
-        User userFromDb = userRepo.findByActivatedCode(code);
+        Users userFromDb = userRepo.findByActivatedCode(code);
         if (userFromDb == null) {
             return false;
         }

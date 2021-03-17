@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import testing_system.domain.people.User;
+import testing_system.domain.people.Users;
 import testing_system.service.AuxiliaryService;
 import testing_system.service.UserService;
 
@@ -21,7 +21,7 @@ public class GeneralController {
     private UserService userService;
 
     @GetMapping("/edit")
-    public String editYourself(@AuthenticationPrincipal User user,
+    public String editYourself(@AuthenticationPrincipal Users user,
                                Model model) {
         model.addAttribute("user", user);
         model.addAttribute("role", auxiliaryService.getRole(user));
@@ -29,7 +29,7 @@ public class GeneralController {
     }
 
     @PostMapping
-    public String editYourself(@AuthenticationPrincipal User user,
+    public String editYourself(@AuthenticationPrincipal Users user,
                                @RequestParam(name = "email") String email,
                                @RequestParam(name = "fullName") String name,
                                @RequestParam(name = "password1") String newPassword,

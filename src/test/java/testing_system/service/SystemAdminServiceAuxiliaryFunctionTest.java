@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
+import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Student;
 import testing_system.domain.people.Teacher;
-import testing_system.domain.people.User;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
@@ -33,7 +33,7 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
 
     @Test
     public void editStudentToTeacherAndAdmin() {
-        User user = new User();
+        Users user = new Users();
         Set<Roles> roles = new HashSet<>();
         roles.add(Roles.STUDENT);
         user.setRoles(roles);
@@ -53,7 +53,7 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
 
     @Test
     public void editTeacherToStudent() {
-        User user = new User();
+        Users user = new Users();
         Set<Roles> roles = new HashSet<>();
         roles.add(Roles.TEACHER);
         user.setRoles(roles);
@@ -65,7 +65,7 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
 
         Assert.assertTrue(isEdit);
         Mockito.verify(userRepo, Mockito.times(1))
-                .delete(ArgumentMatchers.any(User.class));
+                .delete(ArgumentMatchers.any(Users.class));
 
         Mockito.verify(studentRepo, Mockito.times(1))
                 .save(ArgumentMatchers.any(Student.class));
@@ -74,7 +74,7 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
 
     @Test
     public void editStudentToSysAdmin() {
-        User user = new User();
+        Users user = new Users();
         Set<Roles> roles = new HashSet<>();
         roles.add(Roles.STUDENT);
         user.setRoles(roles);
@@ -88,12 +88,12 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
         Mockito.verify(userRepo, Mockito.times(1))
                 .deleteById(ArgumentMatchers.any(Long.class));
         Mockito.verify(userRepo, Mockito.times(1))
-                .save(ArgumentMatchers.any(User.class));
+                .save(ArgumentMatchers.any(Users.class));
     }
 
     @Test
     public void editFailStudentAndTeacher() {
-        User user = new User();
+        Users user = new Users();
         Set<Roles> roles = new HashSet<>();
         roles.add(Roles.STUDENT);
         user.setRoles(roles);
@@ -114,7 +114,7 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
 
     @Test
     public void editFailSysAdminAndStudent() {
-        User user = new User();
+        Users user = new Users();
         Set<Roles> roles = new HashSet<>();
         roles.add(Roles.SYSTEM_ADMIN);
         user.setRoles(roles);
@@ -137,16 +137,16 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
     public void sortByUsername() {
         String username = "a@a.a";
         String fullName = "";
-        User user = new User();
+        Users user = new Users();
         user.setRoles(new HashSet<Roles>());
 
         Mockito.doReturn(user)
                 .when(userRepo)
                 .findByUsername(username);
 
-        List<User> users = systemAdminService.sort(username, fullName);
+        List<Users> allUsers = systemAdminService.sort(username, fullName);
 
-        Assert.assertNotNull(users);
+        Assert.assertNotNull(allUsers);
         Mockito.verify(userRepo, Mockito.times(1))
                 .findByUsername(username);
         Mockito.verify(userRepo, Mockito.times(0))
@@ -159,18 +159,18 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
     public void sortByFullName() {
         String username = "";
         String fullName = "name";
-        User user = new User();
+        Users user = new Users();
         user.setRoles(new HashSet<Roles>());
-        User user1 = new User();
+        Users user1 = new Users();
         user1.setRoles(new HashSet<Roles>());
 
         Mockito.doReturn(new ArrayList<>(Arrays.asList(user, user1)))
                 .when(userRepo)
                 .findAllByFullName(fullName);
 
-        List<User> users = systemAdminService.sort(username, fullName);
+        List<Users> allUsers = systemAdminService.sort(username, fullName);
 
-        Assert.assertEquals(2, users.size());
+        Assert.assertEquals(2, allUsers.size());
         Mockito.verify(userRepo, Mockito.times(0))
                 .findByUsername(ArgumentMatchers.anyString());
         Mockito.verify(userRepo, Mockito.times(1))
@@ -183,14 +183,14 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
     public void sortByUsernameAndFullName() {
         String username = "a@a.a";
         String fullName = "name";
-        User user = new User();
+        Users user = new Users();
         user.setRoles(new HashSet<Roles>());
 
         Mockito.doReturn(new ArrayList<>(Collections.singletonList(user)))
                 .when(userRepo)
                 .findAllByUsernameAndFullName(username, fullName);
 
-        List<User> users = systemAdminService.sort(username, fullName);
+        List<Users> users = systemAdminService.sort(username, fullName);
 
         Assert.assertNotNull(users);
         Mockito.verify(userRepo, Mockito.times(0))
@@ -210,7 +210,7 @@ public class SystemAdminServiceAuxiliaryFunctionTest {
                 .when(userRepo)
                 .findAllByUsernameAndFullName(username, fullName);
 
-        List<User> users = systemAdminService.sort(username, fullName);
+        List<Users> users = systemAdminService.sort(username, fullName);
 
         Assert.assertNull(users);
         Mockito.verify(userRepo, Mockito.times(0))

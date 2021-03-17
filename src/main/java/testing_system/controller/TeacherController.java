@@ -8,22 +8,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.group.Module;
+import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
-import testing_system.domain.people.Teacher;
-import testing_system.domain.people.User;
 import testing_system.domain.test.Question;
 import testing_system.domain.test.Test;
-import testing_system.repos.group.EducationGroupRepo;
-import testing_system.repos.group.ModuleRepo;
 import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
-import testing_system.repos.test.TestRepo;
 import testing_system.service.AuxiliaryService;
 import testing_system.service.TeacherService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/educated")
@@ -44,7 +39,7 @@ public class TeacherController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String myGroups(Model model,
-                           @AuthenticationPrincipal User user) {
+                           @AuthenticationPrincipal Users user) {
         boolean isAdmin = user.getRoles().contains(Roles.TEACHER_ADMIN);
         boolean isTeacher = user.getRoles().contains(Roles.TEACHER);
 
@@ -66,13 +61,13 @@ public class TeacherController {
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String allParticipants(Model model,
                                   @PathVariable(name = "id") EducationGroup educationGroup,
-                                  @AuthenticationPrincipal User user) {
+                                  @AuthenticationPrincipal Users user) {
         if (!auxiliaryService.security(user, educationGroup)) {
             return "error";
         }
 
         model.addAttribute("group", educationGroup);
-        List<User> list = new ArrayList<>();
+        List<Users> list = new ArrayList<>();
         list.addAll(educationGroup.getStudents());
         list.addAll(educationGroup.getTeachers());
         model.addAttribute("usersList", list);
@@ -85,7 +80,7 @@ public class TeacherController {
     @GetMapping("/course/{id}")
     public String course(@PathVariable(name = "id") EducationGroup educationGroup,
                          Model model,
-                         @AuthenticationPrincipal User user) {
+                         @AuthenticationPrincipal Users user) {
         if (!auxiliaryService.security(user, educationGroup)) {
             return "error";
         }
@@ -109,7 +104,7 @@ public class TeacherController {
     public String addModule(@PathVariable(name = "id") EducationGroup educationGroup,
                             @RequestParam String title,
                             Model model,
-                            @AuthenticationPrincipal User user) {
+                            @AuthenticationPrincipal Users user) {
         if (!auxiliaryService.security(user, educationGroup)) {
             return "error";
         }
@@ -132,7 +127,7 @@ public class TeacherController {
     @GetMapping("/module/{id}")
     public String module(@PathVariable(name = "id") Module module,
                          Model model,
-                         @AuthenticationPrincipal User user) {
+                         @AuthenticationPrincipal Users user) {
         if (!auxiliaryService.security(user, module.getEducationGroup())) {
             return "error";
         }
@@ -155,7 +150,7 @@ public class TeacherController {
     public String addTest(@PathVariable(name = "id") Module module,
                           @RequestParam(name = "count", required = false) Integer count,
                           Model model,
-                          @AuthenticationPrincipal User user) {
+                          @AuthenticationPrincipal Users user) {
 
         if (!auxiliaryService.security(user, module.getEducationGroup())) {
             return "error";
@@ -183,7 +178,7 @@ public class TeacherController {
                           @PathVariable(name = "id") Module module,
                           @RequestParam(name = "marks") List<Integer> marks,
                           Model model,
-                          @AuthenticationPrincipal User user) {
+                          @AuthenticationPrincipal Users user) {
 
         if (!auxiliaryService.security(user, module.getEducationGroup())) {
             return "error";
@@ -213,7 +208,7 @@ public class TeacherController {
                           @RequestParam(name = "countQuestions", required = false) Integer countQ,
                           @RequestParam(name = "countSections", required = false) Integer countS,
                           Model model,
-                          @AuthenticationPrincipal User user) {
+                          @AuthenticationPrincipal Users user) {
 
         if (!auxiliaryService.security(user, module.getEducationGroup())) {
             return "error";
@@ -246,7 +241,7 @@ public class TeacherController {
                             @PathVariable(name = "id") Module module,
                             @RequestParam(name = "marks") List<Integer> marks,
                             Model model,
-                            @AuthenticationPrincipal User user) {
+                            @AuthenticationPrincipal Users user) {
 
         if (!auxiliaryService.security(user, module.getEducationGroup())) {
             return "error";
@@ -274,7 +269,7 @@ public class TeacherController {
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String statistics(Model model,
                              @PathVariable(name = "id") Test test,
-                             @AuthenticationPrincipal User user) {
+                             @AuthenticationPrincipal Users user) {
 
         if (!auxiliaryService.security(user, test.getModule().getEducationGroup())) {
             return "error";
@@ -289,14 +284,14 @@ public class TeacherController {
             model.addAttribute("mean", strings[2]);
         }
 
-        List<User> users = new ArrayList<>(30);
+        List<Users> allUsers = new ArrayList<>(30);
 
         for (long key : test.getStudentsMarks().keySet()) {
-            users.add(userRepo.findById(key).get());
+            allUsers.add(userRepo.findById(key).get());
         }
 
         model.addAttribute("allMarks", allMarks);
-        model.addAttribute("users", users);
+        model.addAttribute("users", allUsers);
         List<Question> questions = test.getQuestions();
         questions.removeIf(x -> contains2(questions, x.getId()));
 

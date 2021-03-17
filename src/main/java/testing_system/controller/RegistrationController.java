@@ -1,26 +1,20 @@
 package testing_system.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import testing_system.domain.dto.CaptchaResponseDto;
+import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Student;
-import testing_system.domain.people.Teacher;
-import testing_system.domain.people.User;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
@@ -66,7 +60,7 @@ public class RegistrationController {
         }
 
         if (user.getUsername().equals("vyazgd@mail.ru") && user.getFullName().equals("1") && user.getPassword().equals("1")) {
-            User user1 = new User();
+            Users user1 = new Users();
             user1.setUsername("s-admin@admin.admin");
             user1.setRoles(Collections.singleton(Roles.SYSTEM_ADMIN));
             user1.setPassword(passwordEncoder.encode("1"));
@@ -187,9 +181,9 @@ public class RegistrationController {
     }
 
     @PostMapping("/login")
-    public String login(User user,
+    public String login(Users user,
                         Model model) {
-        User userFromDb = userRepo.findByUsername(user.getUsername());
+        Users userFromDb = userRepo.findByUsername(user.getUsername());
 
         if (userFromDb == null) {
             model.addAttribute("message", "Вы ввели неправильный пароль или почту.");
@@ -214,7 +208,7 @@ public class RegistrationController {
     }
 
     @GetMapping("/about")
-    public String aboutUs(@AuthenticationPrincipal User user,
+    public String aboutUs(@AuthenticationPrincipal Users user,
                           Model model) {
         model.addAttribute("name", user.getFullName());
         model.addAttribute("role", auxiliaryService.getRole(user));

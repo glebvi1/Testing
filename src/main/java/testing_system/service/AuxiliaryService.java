@@ -2,22 +2,22 @@ package testing_system.service;
 
 import org.springframework.stereotype.Service;
 import testing_system.domain.group.EducationGroup;
+import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
-import testing_system.domain.people.User;
 
 import java.util.Set;
 
 @Service
 public class AuxiliaryService {
 
-    public boolean security(User user, EducationGroup educationGroup) {
+    public boolean security(Users user, EducationGroup educationGroup) {
 
-        for (User u : educationGroup.getStudents()) {
+        for (Users u : educationGroup.getStudents()) {
             if (u.getId() == user.getId()) {
                 return true;
             }
         }
-        for (User u : educationGroup.getTeachers()) {
+        for (Users u : educationGroup.getTeachers()) {
             if (u.getId() == user.getId()) {
                 return true;
             }
@@ -26,7 +26,7 @@ public class AuxiliaryService {
         return user.getRoles().contains(Roles.TEACHER_ADMIN);
     }
 
-    public String getRole(User user) {
+    public String getRole(Users user) {
         Set<Roles> roles = user.getRoles();
         if (roles.contains(Roles.SYSTEM_ADMIN)) {
             return "system_admin";

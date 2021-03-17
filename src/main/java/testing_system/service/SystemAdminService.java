@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.message.Message;
+import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Student;
 import testing_system.domain.people.Teacher;
-import testing_system.domain.people.User;
 import testing_system.repos.group.EducationGroupRepo;
 import testing_system.repos.message.MessageRepo;
 import testing_system.repos.people.StudentRepo;
@@ -34,7 +34,7 @@ public class SystemAdminService {
     private MessageRepo messageRepo;
 
     // Изменение роли пользователя
-    public boolean editUser(User user, Map<String, String> htmlRoles) {
+    public boolean editUser(Users user, Map<String, String> htmlRoles) {
         if (htmlRoles.isEmpty()) {
             return false;
         }
@@ -90,7 +90,7 @@ public class SystemAdminService {
             userRepo.delete(user);
             studentRepo.save(newUser);
         } else if (isTeacherAdmin || isSysAdmin) {
-            User newUser = new User();
+            Users newUser = new Users();
             newUser.setUsername(user.getUsername());
             newUser.setPassword(user.getPassword());
             newUser.setFullName(user.getFullName());
@@ -104,8 +104,8 @@ public class SystemAdminService {
     }
 
     // Поиск пользователей с заданой почтой и именем
-    public List<User> sort(String username, String fullName) {
-        List<User> users = new ArrayList<>();
+    public List<Users> sort(String username, String fullName) {
+        List<Users> users = new ArrayList<>();
 
         if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(fullName)) {
             users = userRepo.findAllByUsernameAndFullName(username, fullName);

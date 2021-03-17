@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class User implements UserDetails {
+public class Users implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,12 +22,11 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @ElementCollection(targetClass = Roles.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     private Set<Roles> roles;
 
-    public User() {}
+    public Users() {}
 
-    public User(String username) {
+    public Users(String username) {
         this.username = username;
     }
 

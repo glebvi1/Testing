@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Teacher extends User {
+public class Teacher extends Users {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<EducationGroup> groups;

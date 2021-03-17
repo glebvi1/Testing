@@ -13,13 +13,14 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import testing_system.domain.group.EducationGroup;
+import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
-import testing_system.domain.people.User;
 import testing_system.repos.group.EducationGroupRepo;
 import testing_system.repos.people.UserRepo;
 import testing_system.service.AuxiliaryService;
 import testing_system.service.SystemAdminService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class TeacherAdminController {
     public String listUsers(Model model,
                             @RequestParam(required = false) String username,
                             @RequestParam(required = false) String fullName,
-                            @AuthenticationPrincipal User user,
+                            @AuthenticationPrincipal Users user,
                             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable) {
         model.addAttribute("admin", true);
         if (user.getRoles().contains(Roles.SYSTEM_ADMIN)) {
@@ -50,12 +51,16 @@ public class TeacherAdminController {
             model.addAttribute("usersList", systemAdminService.sort(username, fullName));
             model.addAttribute("one", true);
         } else {
-            List<User> users = userRepo.findAll(pageable)
+            List<Users> allUsers = userRepo.findAll(pageable)
                     .stream().filter(tUser -> !tUser.getRoles().contains(Roles.SYSTEM_ADMIN))
                     .collect(Collectors.toList());
-            Page<User> pages = new PageImpl<>(users);
+            Page<Users> pages = new PageImpl<>(allUsers);
             model.addAttribute("one", false);
-            model.addAttribute("usersList", pages);
+            if (pages == null || pages.getSize() == 0) {
+                model.addAttribute("usersList", new ArrayList<>());
+            } else {
+                model.addAttribute("usersList", pages);
+            }
             int n = pages.getTotalPages();
             if (n > 1) {
                 int[] arr = new int[pages.getTotalPages() - 1];
@@ -72,7 +77,7 @@ public class TeacherAdminController {
 
     @GetMapping("/all-groups")
     public String allGroups(Model model,
-                            @AuthenticationPrincipal User user) {
+                            @AuthenticationPrincipal Users user) {
         List<EducationGroup> educationGroups;
         educationGroups = educationGroupRepo.findAll();
 
@@ -85,7 +90,7 @@ public class TeacherAdminController {
     @GetMapping("/all-groups/edit/{id}")
     public String editGroup(@PathVariable(name = "id") EducationGroup educationGroup,
                             Model model,
-                            @AuthenticationPrincipal User user) {
+                            @AuthenticationPrincipal Users user) {
         model.addAttribute("id", educationGroup.getId());
         model.addAttribute("role", auxiliaryService.getRole(user));
         model.addAttribute("groupName", educationGroup.getTitle());
@@ -113,7 +118,7 @@ public class TeacherAdminController {
                             @RequestParam(name = "studentsEmails") List<String> studentsEmails,
                             @RequestParam(name = "teachersEmails") List<String> teachersEmails,
                             Model model,
-                            @AuthenticationPrincipal User user,
+                            @AuthenticationPrincipal Users user,
                             @PathVariable(name = "id") EducationGroup educationGroup) {
 
         if (!systemAdminService.updateEducationGroup(studentsEmails, teachersEmails, title, educationGroup)) {

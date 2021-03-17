@@ -4,19 +4,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import testing_system.domain.people.User;
+import testing_system.domain.people.Users;
 
 import java.util.List;
 
 @Repository
-public interface UserRepo extends JpaRepository<User, Long> {
-    User findByUsername(String username);
+public interface UserRepo extends JpaRepository<Users, Long> {
+    Users findByUsername(String username);
 
-    List<User> findAllByUsernameAndFullName(String username, String fullName);
+    List<Users> findAllByUsernameAndFullName(String username, String fullName);
 
-    List<User> findAllByFullName(String fullName);
+    List<Users> findAllByFullName(String fullName);
 
-    User findByActivatedCode(String code);
+    Users findByActivatedCode(String code);
 
-    Page<User> findAll(Pageable pageable);
+    Page<Users> findAll(Pageable pageable);
 }

@@ -7,10 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import testing_system.domain.message.Message;
 import testing_system.domain.people.Roles;
-import testing_system.domain.people.User;
+import testing_system.domain.people.Users;
 import testing_system.repos.message.MessageRepo;
-import testing_system.repos.people.StudentRepo;
-import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
 import testing_system.service.SystemAdminService;
 
@@ -38,7 +36,7 @@ public class SystemAdminController {
 
     @PostMapping("/edit/{id}")
     public String edit(@RequestParam Map<String, String> htmlRoles,
-                       @PathVariable(name = "id") User user,
+                       @PathVariable(name = "id") Users user,
                        Model model) {
 
         if (!systemAdminService.editUser(user, htmlRoles)) {

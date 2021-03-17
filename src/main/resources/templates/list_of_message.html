@@ -13,7 +13,7 @@
     <div class="card" th:each="message : ${messages}">
         <div class="card-body" >
             <h4 class="card-title" th:text="${message.getTheme()}"></h4>
-            <a th:href="@{/system-admin/questions/{id}(id=${message.getId()})}" class="btn btn-primary">Ответить</a>
+            <a th:href="@{/system-user/questions/{id}(id=${message.getId()})}" class="btn btn-primary">Ответить</a>
         </div>
     </div>
 </div>

@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Entity
 @Table
-public class Student extends User {
+public class Student extends Users {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<EducationGroup> groups;

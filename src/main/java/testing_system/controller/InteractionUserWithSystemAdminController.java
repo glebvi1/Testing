@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import testing_system.domain.dto.CaptchaResponseDto;
 import testing_system.domain.message.Message;
-import testing_system.domain.people.User;
+import testing_system.domain.people.Users;
 import testing_system.repos.message.MessageRepo;
 import testing_system.service.AuxiliaryService;
 
@@ -38,14 +38,14 @@ public class InteractionUserWithSystemAdminController {
 
     @GetMapping
     public String writeMessage(Model model,
-                               @AuthenticationPrincipal User user) {
+                               @AuthenticationPrincipal Users user) {
         model.addAttribute("role", auxiliaryService.getRole(user));
 
         return "interaction_user";
     }
 
     @PostMapping
-    public String writeMessage(@AuthenticationPrincipal User user,
+    public String writeMessage(@AuthenticationPrincipal Users user,
                                @RequestParam(name = "theme") String theme,
                                @RequestParam(name = "question") String question,
                                @RequestParam(name = "g-recaptcha-response") String recaptchaResponse,

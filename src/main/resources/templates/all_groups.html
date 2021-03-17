@@ -19,8 +19,8 @@
         <div class="card-body" >
             <h4 class="card-title" th:text="${group.getTitle()}"></h4>
             <a th:href="@{/educated/course/{id}(id=${group.getId()})}" class="btn btn-primary" th:if="${role} != 'system_admin'" >Посмотреть</a>
-            <a th:href="@{/teacher-admin/all-groups/edit/{id}(id=${group.getId()})}" class="btn btn-primary" th:if="${role} == 'system_admin'" >Изменить</a>
-            <a th:href="@{/teacher-admin/all-groups/edit/{id}(id=${group.getId()})}" class="btn btn-primary" th:if="${role} == 'teacher_admin'" >Изменить</a>
+            <a th:href="@{/teacher-user/all-groups/edit/{id}(id=${group.getId()})}" class="btn btn-primary" th:if="${role} == 'system_admin'" >Изменить</a>
+            <a th:href="@{/teacher-user/all-groups/edit/{id}(id=${group.getId()})}" class="btn btn-primary" th:if="${role} == 'teacher_admin'" >Изменить</a>
         </div>
     </div>
 </div>
