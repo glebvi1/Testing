@@ -8,13 +8,14 @@
 </head>
 <body>
 
-<header th:insert="parts/teacher_header :: teacher_header" th:if="${admin} == null"></header>
-<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${admin}"></header>
 <header th:insert="parts/system_admin_header :: system_admin_header" th:if="${sys_admin}"></header>
+<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${admin}"></header>
+<header th:insert="parts/teacher_header :: teacher_header" th:if="${some_admin} == null"></header>
+<header th:insert="parts/teacher_header :: teacher_header" th:if="${teacher}"></header>
 
 <h4>Список пользователей</h4>
 
-<form th:action="@{/teacher-admin/all-users}" method="get" th:if="${admin}">
+<form th:action="@{/teacher-admin/all-users}" method="get" th:if="${some_admin}">
     <div><label> Почта: <input type="email" name="username" class="form-control"/> </label></div>
     <label> Имя: <input type="text" name="fullName" class="form-control"/> </label>
     <button type="submit" class="btn btn-primary">Найти</button>
@@ -30,19 +31,15 @@
         <tr th:each="user, iStat : ${usersList.content}">
             <td th:text="${user.getFullName()}" ></td>
             <td th:text="${user.getUsername()}"></td>
-            <td th:text="${user.getStringRoles()}" th:if="${admin}"></td>
-<!--            <div th:if="${!user}">
-                <td th:text="Студент" th:if="${!user.isTeacher()}"></td>
-                <td th:text="Учитель" th:if="${user.isTeacher()}"></td>
-            </div>-->
+            <td th:text="${user.getStringRoles()}" th:if="${some_admin}"></td>
             <td><div><a th:href="@{/system-admin/edit/{id}(id=${user.getId()})}" class="btn btn-primary" th:if="${sys_admin}">Изменить</a></div></td>
         </tr>
     </div>
     <tr th:each="user, iStat : ${usersList}" th:if="${one}">
         <td th:text="${user.getFullName()}" ></td>
         <td th:text="${user.getUsername()}"></td>
-        <td th:text="${user.getStringRoles()}" th:if="${admin}"></td>
-        <div th:if="${!admin}">
+        <td th:text="${user.getStringRoles()}" th:if="${some_admin}"></td>
+        <div th:if="${!some_admin}">
             <td th:text="Студент" th:if="${!user.isTeacher()}"></td>
             <td th:text="Учитель" th:if="${user.isTeacher()}"></td>
         </div>

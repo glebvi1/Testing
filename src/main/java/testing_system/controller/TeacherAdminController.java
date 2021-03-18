@@ -43,10 +43,14 @@ public class TeacherAdminController {
                             @RequestParam(required = false) String fullName,
                             @AuthenticationPrincipal Users user,
                             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable) {
-        model.addAttribute("admin", true);
+
         if (user.getRoles().contains(Roles.SYSTEM_ADMIN)) {
             model.addAttribute("sys_admin", true);
+            model.addAttribute("admin", false);
+        } else {
+            model.addAttribute("admin", true);
         }
+        model.addAttribute("some_admin", true);
         if (!StringUtils.isEmpty(username) || !StringUtils.isEmpty(fullName)) {
             model.addAttribute("usersList", systemAdminService.sort(username, fullName));
             model.addAttribute("one", true);
@@ -61,9 +65,9 @@ public class TeacherAdminController {
             } else {
                 model.addAttribute("usersList", pages);
             }
-            int n = allUsers.size() / 10 + 1;
-            int[] arr = new int[pages.getTotalPages() - 1];
-            for (int i = 0; i < pages.getTotalPages() - 1; i++) {
+            int n = allUsers.size() / 10 + 2;
+            int[] arr = new int[n];
+            for (int i = 0; i < n; i++) {
                 arr[i] = i + 1;
             }
             model.addAttribute("arr", arr);
@@ -74,12 +78,27 @@ public class TeacherAdminController {
 
     @GetMapping("/all-groups")
     public String allGroups(Model model,
-                            @AuthenticationPrincipal Users user) {
-        List<EducationGroup> educationGroups;
-        educationGroups = educationGroupRepo.findAll();
+                            @AuthenticationPrincipal Users user,
+                            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable) {
+        List<EducationGroup> educationGroups = educationGroupRepo.findAll();
 
-        model.addAttribute("allGroups", educationGroups);
+        Page<EducationGroup> pageGroups = educationGroupRepo.findAll(pageable);
+
+        model.addAttribute("one", false);
+        if (educationGroups.size() == 0) {
+            model.addAttribute("usersList", new PageImpl<Users>(new ArrayList<>()));
+        } else {
+            model.addAttribute("usersList", pageGroups);
+        }
+        int n = educationGroups.size() / 10 + 2;
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = i + 1;
+        }
+        model.addAttribute("arr", arr);
+        model.addAttribute("allGroups", pageGroups);
         model.addAttribute("role", auxiliaryService.getRole(user));
+        model.addAttribute("one", false);
 
         return "all_groups";
     }

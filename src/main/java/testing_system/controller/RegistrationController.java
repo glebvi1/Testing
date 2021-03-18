@@ -132,7 +132,7 @@ public class RegistrationController {
         student2.setFullName("student2");
 
         Student student3 = new Student();
-        student3.setUsername("gleb.vyazov@yande.ru");
+        student3.setUsername("gleb.vyazov@yandex.ru");
         student3.setPassword(passwordEncoder.encode("1"));
         student3.setRoles(Collections.singleton(Roles.STUDENT));
         student3.setFullName("student3");

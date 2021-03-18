@@ -73,6 +73,9 @@ public class TeacherController {
         model.addAttribute("usersList", list);
         model.addAttribute("one", true);
 
+        model.addAttribute("some_admin", false);
+        model.addAttribute("teacher", true);
+
         return "list_of_users";
     }
 
@@ -87,20 +90,14 @@ public class TeacherController {
         String role = auxiliaryService.getRole(user);
 
         if (role.equals("teacher")) {
-            boolean isGoodTeacher = educationGroup.getTeachers().contains(teacherRepo.findById(user.getId()).get());
-            if (isGoodTeacher) {
-                model.addAttribute("role", "teacher");
-            } else {
-                model.addAttribute("role", "student");
-            }
+            model.addAttribute("role", "teacher");
         } else if (user.getRoles().contains(Roles.TEACHER) && user.getRoles().contains(Roles.TEACHER_ADMIN)) {
             boolean isGoodTeacher = educationGroup.getTeachers().contains(teacherRepo.findById(user.getId()).get());
             if (isGoodTeacher) {
                 model.addAttribute("role", "teacher");
             } else {
-                model.addAttribute("role", "student");
+                model.addAttribute("role", "teacher_admin");
             }
-
         }
         else {
             model.addAttribute("role", "student");
@@ -202,6 +199,7 @@ public class TeacherController {
         }
 
         model.addAttribute("module", module);
+        model.addAttribute("one", true);
 
         if (contains(module, title)) {
             model.addAttribute("message", "Тест с таким названием уже существует.");

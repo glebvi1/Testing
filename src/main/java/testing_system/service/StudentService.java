@@ -25,8 +25,6 @@ public class StudentService {
 
     // Выставляется оценка за тест, отправляется письмо студентам и учителям
     public int doTest(Test test, List<String> htmlAnswers, Student student) {
-        test.getQuestions().removeIf(x -> teacherService.contains2(test.getQuestions(), x.getId()));
-
         int countOfCorrectAnswers = parseHtml(test.getQuestions(), htmlAnswers);
 
         Map<Integer, Integer> marks = test.getGradingSystem();
@@ -39,6 +37,8 @@ public class StudentService {
 
         if (studentsMarks == null) {
             studentsMarks = new HashMap<>();
+        }
+        if (allMarks == null) {
             allMarks = new HashMap<>();
         }
         studentsMarks.put(student.getId(), mark);
@@ -55,6 +55,7 @@ public class StudentService {
         return mark;
     }
 
+    // Выставляется оценка за билет, отправляется письмо студентам и учителям
     public int doTicket(Test test, Test ticket, List<String> htmlAnswers,
                         Student student) {
         test.getQuestions().removeIf(x -> teacherService.contains2(test.getQuestions(), x.getId()));
@@ -111,15 +112,41 @@ public class StudentService {
 
         for (int i = 0; i < n; i += section) {
             List<Question> tempQuestions = new ArrayList<>();
+
             for (int j = 0; j < section && (i+j) < n; j++) {
                 tempQuestions.add(test.getQuestions().get(i + j));
             }
+
             int rnd = section - 1;
             int randomQ = (int)(Math.random() * ++rnd);
             newTest.getQuestions().add(tempQuestions.get(randomQ));
         }
 
         return newTest;
+    }
+
+    public List<Question> initTest(Test test) {
+        List<Question> questions = test.getQuestions();
+        List<Question> news = new ArrayList<>();
+        for (Question question : questions) {
+            if (!news.contains(question)) {
+                news.add(question);
+            }
+        }
+        test.setQuestions(news);
+
+        for (Question question : test.getQuestions()) {
+            List<String> ao = new ArrayList<>();
+
+            for (String answer : question.getAnswersOptions()) {
+                if (!ao.contains(answer)) {
+                    ao.add(answer);
+                }
+            }
+
+            question.setAnswersOptions(ao);
+        }
+        return news;
     }
 
     // Возращает оценку за тест

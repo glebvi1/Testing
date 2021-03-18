@@ -138,7 +138,7 @@ public class TeacherService {
                 String answer = htmlAnswersOptions.get(k);
                 boolean isCorrect = correctAnswers.get(k);
 
-                if (!StringUtils.isEmpty(answer)) {
+                if (!StringUtils.isEmpty(answer) && !answerOptions.contains(answer)) {
                     answerOptions.add(answer);
                     correctAnswer.add(isCorrect);
                 }
