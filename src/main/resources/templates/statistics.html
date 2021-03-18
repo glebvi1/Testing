@@ -33,13 +33,13 @@
     <div th:each="q, in : ${questions}">
         <h5 th:if="${in.index} % ${div1} == 0"><b>Раздел</b></h5>
         <h5>Вопрос №[[${in.index + 1}]]:</h5><h5 class="text-secondary">[[${q.getQuestion()}]]</h5>
-        <h5>Ответ:</h5><h5 class="text-success"> [[${correct.get(in.index)}]]</h5>
+        <h5 class="text-success"> [[${correct.get(in.index)}]]</h5>
     </div>
 </div>
 <div th:if="${test.getSections()} == 0">
     <div th:each="q, in : ${questions}">
         <h5>Вопрос №[[${in.index + 1}]]:</h5><h5 class="text-secondary">[[${q.getQuestion()}]]</h5>
-        <h5>Ответ:</h5><h5 class="text-success"> [[${correct.get(in.index)}]]</h5>
+        <h5 class="text-success"> [[${correct.get(in.index)}]]</h5>
     </div>
 </div>
 

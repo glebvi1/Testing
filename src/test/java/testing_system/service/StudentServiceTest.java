@@ -104,7 +104,7 @@ public class StudentServiceTest {
         testing_system.domain.test.Test test = getTest(5);
         test.setQuestions(getQuestions(25));
 
-        testing_system.domain.test.Test newTest = studentService.createTestFromTicket(test);
+        testing_system.domain.test.Test newTest = studentService.generateTestFromTicket(test);
         boolean checkQuestion = true;
         int index = 0;
         for (int i = 0; i < 25; i += 5) {

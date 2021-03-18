@@ -56,21 +56,18 @@ public class TeacherAdminController {
                     .collect(Collectors.toList());
             Page<Users> pages = new PageImpl<>(allUsers);
             model.addAttribute("one", false);
-            if (pages == null || pages.getSize() == 0) {
-                model.addAttribute("usersList", new ArrayList<>());
+            if (allUsers.size() == 0) {
+                model.addAttribute("usersList", new PageImpl<Users>(new ArrayList<>()));
             } else {
                 model.addAttribute("usersList", pages);
             }
-            int n = pages.getTotalPages();
-            if (n > 1) {
-                int[] arr = new int[pages.getTotalPages() - 1];
-                for (int i = 0; i < pages.getTotalPages() - 1; i++) {
-                    arr[i] = i + 1;
-                }
-                model.addAttribute("arr", arr);
-            } else {
-                model.addAttribute("arr", new int[]{1,2,3,4,5,6});
+            int n = allUsers.size() / 10 + 1;
+            int[] arr = new int[pages.getTotalPages() - 1];
+            for (int i = 0; i < pages.getTotalPages() - 1; i++) {
+                arr[i] = i + 1;
             }
+            model.addAttribute("arr", arr);
+
         }
         return "list_of_users";
     }

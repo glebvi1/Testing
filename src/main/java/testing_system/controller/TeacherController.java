@@ -85,9 +85,24 @@ public class TeacherController {
             return "error";
         }
         String role = auxiliaryService.getRole(user);
-        if (role.equals("teacher") || role.equals("teacher_admin")) {
-            model.addAttribute("role", "teacher");
-        } else {
+
+        if (role.equals("teacher")) {
+            boolean isGoodTeacher = educationGroup.getTeachers().contains(teacherRepo.findById(user.getId()).get());
+            if (isGoodTeacher) {
+                model.addAttribute("role", "teacher");
+            } else {
+                model.addAttribute("role", "student");
+            }
+        } else if (user.getRoles().contains(Roles.TEACHER) && user.getRoles().contains(Roles.TEACHER_ADMIN)) {
+            boolean isGoodTeacher = educationGroup.getTeachers().contains(teacherRepo.findById(user.getId()).get());
+            if (isGoodTeacher) {
+                model.addAttribute("role", "teacher");
+            } else {
+                model.addAttribute("role", "student");
+            }
+
+        }
+        else {
             model.addAttribute("role", "student");
         }
         model.addAttribute("group", educationGroup);
@@ -105,7 +120,9 @@ public class TeacherController {
                             @RequestParam String title,
                             Model model,
                             @AuthenticationPrincipal Users user) {
-        if (!auxiliaryService.security(user, educationGroup)) {
+        boolean isGoodTeacher = !educationGroup.getTeachers().contains(teacherRepo.findById(user.getId()).get());
+        if (!auxiliaryService.security(user, educationGroup) ||
+                isGoodTeacher) {
             return "error";
         }
         model.addAttribute("role", "teacher");

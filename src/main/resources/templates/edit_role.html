@@ -17,7 +17,7 @@
 <h4>Изменить данные пользователя [[${user.getFullName()}]]</h4>
 <p>[[${message}]]</p>
 
-<form th:action="@{/system-user/edit/{id}(id=${user.getId()})}" method="post">
+<form th:action="@{/system-admin/edit/{id}(id=${user.getId()})}" method="post">
     <div class="form-group">
         <div th:each="role : ${roles}">
             <label><input type="checkbox" th:text="${role}" th:name="${role}" th:checked="${user.getRoles().contains(role)}"/></label>
@@ -26,7 +26,7 @@
     <button type="submit" class="btn btn-primary">Сохранить</button>
 </form>
 
-<form th:action="@{/system-user/del/{id}(id=${user.getId()})}" method="post" onsubmit="send(this);return false;">
+<form th:action="@{/system-admin/del/{id}(id=${user.getId()})}" method="post" onsubmit="send(this);return false;">
     <div class="form-group">
         <label><input type="checkbox" name="del"/> Удалить пользователя</label>
     </div>

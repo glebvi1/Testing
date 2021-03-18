@@ -17,7 +17,7 @@
         [[${message.getText()}]]
     </textarea></p>
 </div>
-<form th:action="@{/system-user/questions/{id}(id=${message.getId()})}" method="post">
+<form th:action="@{/system-admin/questions/{id}(id=${message.getId()})}" method="post">
     <div class="form-group">
         <p>Ответ на вопрос (не больше 500 символов):</p>
         <p><textarea th:name="answer" rows="12" cols="45" name="text" maxlength="500" placeholder="Введите вопрос:" required></textarea></p>

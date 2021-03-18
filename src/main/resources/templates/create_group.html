@@ -10,7 +10,7 @@
 <header th:insert="parts/system_admin_header :: system_admin_header"></header>
 <p>[[${message}]]</p>
 
-<form th:action="@{/system-user/add-group}" method="post">
+<form th:action="@{/system-admin/add-group}" method="post">
     <div class="form-group">
         <div><label>Название: <input placeholder="Название группы: " name="title" type="text" class="form-control" maxlength="100" required/></label></div>
         <label>Список студентов: </label>

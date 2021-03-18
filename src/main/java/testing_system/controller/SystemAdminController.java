@@ -82,7 +82,7 @@ public class SystemAdminController {
                            Model model) {
         if (!systemAdminService.createEducationGroup(studentsEmails, teachersEmails, title)) {
             model.addAttribute("message", "Проверьте поля ввода.");
-            return "redirect:/create_group";
+            return "create_group";
         }
 
         return "redirect:/teacher-admin/all-users";

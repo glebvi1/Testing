@@ -14,9 +14,9 @@
 
 <form method="post" th:action="@{/student/test/{id}(id=${test.getId()})}" th:if="${!isDone}" >
 
-    <div th:each="question, index : ${test.getQuestions()}" class="form-group mt-5">
+    <div th:each="question, index : ${questions}" class="form-group mt-5">
         <p>Вопрос №[[${index.index} + 1]]</p>
-        <p>[[${question.getQuestion()}]]</p>
+        <p class="text-secondary">[[${question.getQuestion()}]]</p>
         <div class="form-group mt-3" th:if="${question.getAnswersOptions().size()} == 1">
             <label>Ответ: <input class="form-control" type="text" th:name="answers" placeholder="Введите ответ: " required/></label>
         </div>

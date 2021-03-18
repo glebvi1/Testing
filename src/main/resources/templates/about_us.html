@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous" />
 </head>
 <body>
 
@@ -14,23 +14,23 @@
 
 <h1>О нас</h1>
 
-<div th:if="${role} == 'system_admin'">
+<div id="sys_admin_text" th:if="${role} == 'system_admin'">
     Вы можете создавать учебные группы (до 30 учеников и до 10 учителей), заполняйте поля последовательно.
     Для изменения роли пользователя нажмите кнопку "Изменить" и укажите нужную роль.
 </div>
 
-<div th:if="${role} == 'teacher_admin'">
-    Вы можете смотреть все группы, смотреть успеваемость студентов.
+<div id="teach_admin_text" th:if="${role} == 'teacher_admin'">
+    Вы можете смотреть все группы, всех студентов, успеваемость студентов во всех группах.
 </div>
 
-<div th:if="${role} == 'teacher'">
+<div id="teach_text" th:if="${role} == 'teacher'">
     Вы можете разбивать учебный план на модули, в модулях создавать тесты двых видом: тест, единый для всех учеников,
     например, для домашней работы и билеты (тесты с разными вариантами).
 
     Для создания теста заполните форму. Название тестов в модуле повторяться не может.
 </div>
 
-<div th:if="${role} == 'student'">
+<div id="stud_text" th:if="${role} == 'student'">
     Вы можете проходить тесты и смотреть свою успеваемость.
 </div>
 

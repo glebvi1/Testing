@@ -1,5 +1,7 @@
 package testing_system.domain.test;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -18,7 +20,8 @@ public class Question {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> answersOptions;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Boolean> correctAnswer;
 
     public Question() {}

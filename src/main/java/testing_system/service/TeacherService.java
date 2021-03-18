@@ -154,7 +154,7 @@ public class TeacherService {
         return questions;
     }
 
-    private boolean contains2(List<Question> questions, long id) {
+    boolean contains2(List<Question> questions, long id) {
         int count = 0;
         for (Question question : questions) {
             if (count >= 2) {

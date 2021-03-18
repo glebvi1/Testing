@@ -28,7 +28,7 @@ public class GeneralController {
         return "edit_user";
     }
 
-    @PostMapping
+    @PostMapping("/edit")
     public String editYourself(@AuthenticationPrincipal Users user,
                                @RequestParam(name = "email") String email,
                                @RequestParam(name = "fullName") String name,

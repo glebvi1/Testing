@@ -34,8 +34,6 @@ public class RegistrationController {
     @Autowired
     private StudentRepo studentRepo;
     @Autowired
-    private TeacherRepo teacherRepo;
-    @Autowired
     private AuxiliaryService auxiliaryService;
     @Autowired
     private RestTemplate restTemplate;
@@ -59,111 +57,9 @@ public class RegistrationController {
             return "reg";
         }
 
-        if (user.getUsername().equals("vyazgd@mail.ru") && user.getFullName().equals("1") && user.getPassword().equals("1")) {
-            Users user1 = new Users();
-            user1.setUsername("s-admin@admin.admin");
-            user1.setRoles(Collections.singleton(Roles.SYSTEM_ADMIN));
-            user1.setPassword(passwordEncoder.encode("1"));
-            user1.setFullName("s-admin");
-
-            Student user2 = new Student();
-            user2.setUsername("t-admin@admin.admin");
-            user2.setRoles(Collections.singleton(Roles.STUDENT));
-            user2.setPassword(passwordEncoder.encode("1"));
-            user2.setFullName("t-admin");
-
-            Student student = new Student();
-            student.setUsername("vyazgd@mail.ru");
-            student.setPassword(passwordEncoder.encode("1"));
-            student.setRoles(Collections.singleton(Roles.STUDENT));
-            student.setFullName("student");
-
-            Student student1 = new Student();
-            student1.setUsername("iyti53@mail.ru");
-            student1.setPassword(passwordEncoder.encode("1"));
-            student1.setRoles(Collections.singleton(Roles.STUDENT));
-            student1.setFullName("student1");
-
-            Student student2 = new Student();
-            student2.setUsername("yulia-vyazova@mail.ru");
-            student2.setPassword(passwordEncoder.encode("1"));
-            student2.setRoles(Collections.singleton(Roles.STUDENT));
-            student2.setFullName("student2");
-
-            Student teacher = new Student();
-            teacher.setFullName("teacher");
-            teacher.setPassword(passwordEncoder.encode("1"));
-            teacher.setRoles(Collections.singleton(Roles.STUDENT));
-            teacher.setUsername("teacher@teacher.teacher");
-
-            Student teacher1 = new Student();
-            teacher1.setFullName("teacher1");
-            teacher1.setPassword(passwordEncoder.encode("1"));
-            teacher1.setRoles(Collections.singleton(Roles.STUDENT));
-            teacher1.setUsername("teacher1@teacher1.teacher1");
-
-            Student teacher2 = new Student();
-            teacher2.setFullName("teacher2");
-            teacher2.setPassword(passwordEncoder.encode("1"));
-            teacher2.setRoles(Collections.singleton(Roles.STUDENT));
-            teacher2.setUsername("teacher2@teacher2.teacher2");
-
-            Student teacher3 = new Student();
-            teacher3.setFullName("teacher3");
-            teacher3.setPassword(passwordEncoder.encode("1"));
-            teacher3.setRoles(Collections.singleton(Roles.STUDENT));
-            teacher3.setUsername("teacher3@teacher3.teacher3");
-
-            Student student3 = new Student();
-            student3.setUsername("studForTeachstudForTeach.studForTeach@");
-            student3.setPassword(passwordEncoder.encode("1"));
-            student3.setRoles(Collections.singleton(Roles.STUDENT));
-            student3.setFullName("teacher4");
-
-            Student student4 = new Student();
-            student4.setUsername("studFroAdmin@studFroAdmin.studFroAdmin");
-            student4.setPassword(passwordEncoder.encode("1"));
-            student4.setRoles(Collections.singleton(Roles.STUDENT));
-            student4.setFullName("admin2");
-
-            userRepo.save(user1);
-
-            studentRepo.save(user2);
-            studentRepo.save(student1);
-            studentRepo.save(student);
-            studentRepo.save(student2);
-            studentRepo.save(student3);
-            studentRepo.save(student4);
-
-            studentRepo.save(teacher);
-            studentRepo.save(teacher1);
-            studentRepo.save(teacher2);
-            studentRepo.save(teacher3);
-
-        } else if (user.getUsername().equals("vyazgd1@mail.ru") && user.getFullName().equals("1") && user.getPassword().equals("1")) {
-            Student student = new Student();
-            student.setUsername("s@for.s-admin");
-            student.setPassword(passwordEncoder.encode("1"));
-            student.setRoles(Collections.singleton(Roles.STUDENT));
-            student.setFullName("student");
-
-            Student student1 = new Student();
-            student1.setUsername("s@for.t-admin_and_teacher");
-            student1.setPassword(passwordEncoder.encode("1"));
-            student1.setRoles(Collections.singleton(Roles.STUDENT));
-            student1.setFullName("student");
-
-            Student student2 = new Student();
-            student2.setUsername("s@for.teacher");
-            student2.setPassword(passwordEncoder.encode("1"));
-            student2.setRoles(Collections.singleton(Roles.STUDENT));
-            student2.setFullName("student");
-
-            studentRepo.save(student);
-            studentRepo.save(student1);
-            studentRepo.save(student2);
-        }
-        else {
+        if (user.getUsername().equals("reglament@add.all") && user.getFullName().equals("1") && user.getPassword().equals("1")) {
+            reglamentUsers();
+        } else {
             if (!userService.addUser(user)) {
                 model.addAttribute("message", "Пользователь с такой почтой уже существует!\nИли такой почты не существует!");
                 return "reg";
@@ -214,6 +110,109 @@ public class RegistrationController {
         model.addAttribute("role", auxiliaryService.getRole(user));
 
         return "about_us";
+    }
+
+    private void reglamentUsers() {
+        Student student = new Student();
+        student.setUsername("vyazgd@mail.ru");
+        student.setRoles(Collections.singleton(Roles.STUDENT));
+        student.setPassword(passwordEncoder.encode("1"));
+        student.setFullName("student");
+
+        Student student1 = new Student();
+        student1.setUsername("iyti53@mail.ru");
+        student1.setPassword(passwordEncoder.encode("1"));
+        student1.setRoles(Collections.singleton(Roles.STUDENT));
+        student1.setFullName("student1");
+
+        Student student2 = new Student();
+        student2.setUsername("yulia-vyazova@mail.ru");
+        student2.setPassword(passwordEncoder.encode("1"));
+        student2.setRoles(Collections.singleton(Roles.STUDENT));
+        student2.setFullName("student2");
+
+        Student student3 = new Student();
+        student3.setUsername("gleb.vyazov@yande.ru");
+        student3.setPassword(passwordEncoder.encode("1"));
+        student3.setRoles(Collections.singleton(Roles.STUDENT));
+        student3.setFullName("student3");
+
+        Student student4 = new Student();
+        student4.setFullName("student4");
+        student4.setPassword(passwordEncoder.encode("1"));
+        student4.setRoles(Collections.singleton(Roles.STUDENT));
+        student4.setUsername("student4@student4.student4");
+
+        Student student5 = new Student();
+        student5.setFullName("student5");
+        student5.setPassword(passwordEncoder.encode("1"));
+        student5.setRoles(Collections.singleton(Roles.STUDENT));
+        student5.setUsername("student5@student5.student5");
+
+        Student student6 = new Student();
+        student6.setFullName("student6");
+        student6.setPassword(passwordEncoder.encode("1"));
+        student6.setRoles(Collections.singleton(Roles.STUDENT));
+        student6.setUsername("student6@student6.student6");
+
+        Student student7 = new Student();
+        student7.setFullName("student7");
+        student7.setPassword(passwordEncoder.encode("1"));
+        student7.setRoles(Collections.singleton(Roles.STUDENT));
+        student7.setUsername("student7@student7.student7");
+
+        Student student8 = new Student();
+        student8.setUsername("student8@student8.student8");
+        student8.setPassword(passwordEncoder.encode("1"));
+        student8.setRoles(Collections.singleton(Roles.STUDENT));
+        student8.setFullName("student8");
+
+        Student student9 = new Student();
+        student9.setUsername("student9@student9.student9");
+        student9.setPassword(passwordEncoder.encode("1"));
+        student9.setRoles(Collections.singleton(Roles.STUDENT));
+        student9.setFullName("student9");
+
+        studentRepo.save(student);
+        studentRepo.save(student1);
+        studentRepo.save(student2);
+        studentRepo.save(student3);
+        studentRepo.save(student4);
+        studentRepo.save(student5);
+        studentRepo.save(student6);
+        studentRepo.save(student7);
+        studentRepo.save(student8);
+        studentRepo.save(student9);
+
+        Student teacher = new Student();
+        teacher.setUsername("teacher@teacher.teacher");
+        teacher.setPassword(passwordEncoder.encode("1"));
+        teacher.setRoles(Collections.singleton(Roles.STUDENT));
+        teacher.setFullName("teacher");
+
+        Student teacher1 = new Student();
+        teacher1.setUsername("teacher1@teacher1.teacher1");
+        teacher1.setPassword(passwordEncoder.encode("1"));
+        teacher1.setRoles(Collections.singleton(Roles.STUDENT));
+        teacher1.setFullName("teacher1");
+
+        Student teacher2 = new Student();
+        teacher2.setUsername("teacher2@teacher2.teacher2");
+        teacher2.setPassword(passwordEncoder.encode("1"));
+        teacher2.setRoles(Collections.singleton(Roles.STUDENT));
+        teacher2.setFullName("teacher2");
+
+        Student teacher3 = new Student();
+        teacher3.setUsername("teacher3@teacher3.teacher3");
+        teacher3.setPassword(passwordEncoder.encode("1"));
+        teacher3.setRoles(Collections.singleton(Roles.STUDENT));
+        teacher3.setFullName("teacher3");
+
+        studentRepo.save(teacher);
+        studentRepo.save(teacher1);
+        studentRepo.save(teacher2);
+        studentRepo.save(teacher3);
+
     }
 
 }
