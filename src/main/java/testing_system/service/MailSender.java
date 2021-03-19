@@ -14,6 +14,7 @@ public class MailSender {
     @Value("${spring.mail.username}")
     private String username;
 
+    // Отправка сообщений
     public void send(String theme, String userEmail, String text) {
         SimpleMailMessage mailMessage = new SimpleMailMessage(); // SimpleMailMessage - создает простое сообщение
         mailMessage.setFrom(username);

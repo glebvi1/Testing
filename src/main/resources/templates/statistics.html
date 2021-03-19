@@ -22,7 +22,7 @@
         <th scope="col">Почта</th>
         <th scope="col">Оценка</th>
     </tr>
-    <tr th:each="user, i : ${user}">
+    <tr th:each="user, i : ${users}">
         <td th:text="${user.getFullName()}" ></td>
         <td th:text="${user.getUsername()}"></td>
         <td th:text="${allMarks.get(i.index)}"></td>

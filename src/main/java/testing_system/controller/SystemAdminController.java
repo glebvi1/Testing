@@ -9,6 +9,8 @@ import testing_system.domain.message.Message;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Users;
 import testing_system.repos.message.MessageRepo;
+import testing_system.repos.people.StudentRepo;
+import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
 import testing_system.service.SystemAdminService;
 
@@ -26,6 +28,7 @@ public class SystemAdminController {
     @Autowired
     private MessageRepo messageRepo;
 
+    // Изменение роли пользователя
     @GetMapping("/edit/{id}")
     public String edit(Model model,
                        @PathVariable Long id) {
@@ -49,15 +52,17 @@ public class SystemAdminController {
         return "redirect:/teacher-admin/all-users";
     }
 
+    // Удаление пользователя
     @PostMapping("/del/{id}")
     public String del(@RequestParam(name = "del") String isDel,
-                      @PathVariable(name = "id") long id) {
+                      @PathVariable(name = "id") Users user) {
         if (isDel.equals("on")) {
-            userRepo.deleteById(id);
+            systemAdminService.deleteUser(user);
         }
         return "redirect:/teacher-admin/all-users";
     }
 
+    // Добавление учебной группы
     @GetMapping("/add-group")
     public String addGroup(Model model) {
 
@@ -88,12 +93,14 @@ public class SystemAdminController {
         return "redirect:/teacher-admin/all-users";
     }
 
+    // Список вопросов от пользователей
     @GetMapping("/questions")
     public String questions(Model model) {
         model.addAttribute("messages", messageRepo.findAll());
         return "list_of_message";
     }
 
+    // Ответ на вопрос пользователя (придет на почту)
     @GetMapping("/questions/{id}")
     public String getAnswer(@PathVariable(name = "id") Message message,
                             Model model) {

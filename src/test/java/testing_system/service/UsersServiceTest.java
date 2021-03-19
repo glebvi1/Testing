@@ -106,21 +106,6 @@ public class UsersServiceTest {
     }
 
     @Test
-    public void updateUser() {
-        Users user = new Users();
-        user.setPassword("123");
-
-        boolean isUpdate = userService.updateUser(user, "new name", "new email", "new password", user.getPassword());
-
-        Assert.assertEquals("new email", user.getUsername());
-        Assert.assertEquals("new name", user.getFullName());
-        Assert.assertEquals("new password", user.getPassword());
-        Assert.assertTrue(isUpdate);
-        Mockito.verify(userRepo, Mockito.times(1)).save(user);
-
-    }
-
-    @Test
     public void updateUserFailTest() {
         Users user = new Users();
         user.setFullName("name");

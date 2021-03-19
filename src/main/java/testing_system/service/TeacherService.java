@@ -13,6 +13,7 @@ import testing_system.repos.test.QuestionRepo;
 import testing_system.repos.test.TestRepo;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TeacherService {
@@ -41,6 +42,25 @@ public class TeacherService {
 
         Test test = new Test();
         test.setTitle(title);
+
+        for (Question question : questions) {
+            List<String> answerOptions = question.getAnswersOptions();
+            List<String> newAnswerOptions = new ArrayList<>();
+            List<Boolean> correctAnswer = question.getCorrectAnswer();
+            List<Boolean> newCorrectAnswer = new ArrayList<>();
+            int size = answerOptions.size() - 1;
+            int step = (int) (Math.random() * ++size);
+
+            for (int j = 0; j < size; j++) {
+                int replace = (j + step) % size;
+                newAnswerOptions.add(answerOptions.get(replace));
+                newCorrectAnswer.add(correctAnswer.get(replace));
+            }
+            question.setAnswersOptions(newAnswerOptions);
+            question.setCorrectAnswer(newCorrectAnswer);
+            questionRepo.save(question);
+        }
+
         test.setQuestions(questions);
         test.setGradingSystem(gradingSystem);
         test.setModule(module);
@@ -49,7 +69,6 @@ public class TeacherService {
 
         module.getTests().add(test);
         moduleRepo.save(module);
-
     }
 
     // Статистика успеваемости за тест
@@ -75,7 +94,7 @@ public class TeacherService {
 
         String[] sAverage = (average+"").split("\\.");
         if (sAverage[1].length() >= 2) {
-            strings[2] = sAverage[0] + "." + sAverage[2].charAt(0) + sAverage[2].charAt(1);
+            strings[2] = sAverage[0] + "." + sAverage[1].charAt(0) + sAverage[1].charAt(1);
         } else {
             strings[2] = average+"";
         }
@@ -107,6 +126,31 @@ public class TeacherService {
         return true;
     }
 
+    // Правильные варианты ответа из списка вопросов
+    public List<String> getCorrectAnswers(List<Question> questions) {
+        List<String> answers = new ArrayList<>();
+
+        for (Question question : questions) {
+            List<String> answersOptions = question.getAnswersOptions();
+            if (answersOptions.size() == 1) {
+                answers.add(answersOptions.get(0));
+            } else {
+                List<Boolean> correctAnswers = question.getCorrectAnswer();
+                String cor = "";
+
+                for (int i = 0; i < answersOptions.size(); i++) {
+                    if (correctAnswers.get(i)) {
+                        cor += answersOptions.get(i) + ", ";
+                    }
+                }
+                answers.add(cor.substring(0, cor.length() - 2));
+            }
+        }
+
+        return answers;
+    }
+
+    // Обработка правильных ответов, пришедших с клиента
     private List<Boolean> parseHtmlCheckbox(List<String> htmlCorrectAnswers) {
         List<Boolean> correctAnswers = new ArrayList<>();
 
@@ -123,6 +167,7 @@ public class TeacherService {
         return correctAnswers;
     }
 
+    // Обработка вопросов, пришедших с клиента
     private List<Question> parseHtmlQuestions(List<String> htmlQuestions, List<Boolean> correctAnswers,
                                               List<String> htmlAnswersOptions) {
         List<Question> questions = new ArrayList<>();
@@ -150,21 +195,8 @@ public class TeacherService {
             questionRepo.save(question);
             questions.add(question);
         }
-        questions.removeIf(x -> contains2(questions, x.getId()));
-        return questions;
-    }
 
-    boolean contains2(List<Question> questions, long id) {
-        int count = 0;
-        for (Question question : questions) {
-            if (count >= 2) {
-                return true;
-            }
-            if (question.getId() == id) {
-                count++;
-            }
-        }
-        return count >= 2;
+        return questions;
     }
 
 }

@@ -95,7 +95,7 @@ public class TeacherServiceTest {
                 "Test", htmlQ, htmlAO, htmlCA, module, marks, 0
         );
 
-        Mockito.verify(questionRepo, Mockito.times(7))
+        Mockito.verify(questionRepo, Mockito.times(14))
                 .save(ArgumentMatchers.any(Question.class));
 
         Mockito.verify(moduleRepo, Mockito.times(1))
@@ -145,7 +145,7 @@ public class TeacherServiceTest {
                 "Test", htmlQ, htmlAO, htmlCA, module, marks, 5
         );
 
-        Mockito.verify(questionRepo, Mockito.times(10))
+        Mockito.verify(questionRepo, Mockito.times(20))
                 .save(ArgumentMatchers.any(Question.class));
 
         Mockito.verify(moduleRepo, Mockito.times(1))
@@ -192,7 +192,7 @@ public class TeacherServiceTest {
                 "Test", htmlQ, htmlAO, htmlCA, module, marks, 2
         );
 
-        Mockito.verify(questionRepo, Mockito.times(10))
+        Mockito.verify(questionRepo, Mockito.times(20))
                 .save(ArgumentMatchers.any(Question.class));
 
         Mockito.verify(moduleRepo, Mockito.times(1))

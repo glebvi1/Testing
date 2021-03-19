@@ -10,7 +10,10 @@ import testing_system.domain.test.Test;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.test.TestRepo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class StudentService {
@@ -20,8 +23,6 @@ public class StudentService {
     private TestRepo testRepo;
     @Autowired
     private MailSender mailSender;
-    @Autowired
-    private TeacherService teacherService;
 
     // Выставляется оценка за тест, отправляется письмо студентам и учителям
     public int doTest(Test test, List<String> htmlAnswers, Student student) {
@@ -58,8 +59,6 @@ public class StudentService {
     // Выставляется оценка за билет, отправляется письмо студентам и учителям
     public int doTicket(Test test, Test ticket, List<String> htmlAnswers,
                         Student student) {
-        test.getQuestions().removeIf(x -> teacherService.contains2(test.getQuestions(), x.getId()));
-
         // Кол-во правильных ответов
         int countOfCorrectAnswers = parseHtml(test.getQuestions(), htmlAnswers);
 
@@ -149,6 +148,36 @@ public class StudentService {
         return news;
     }
 
+    private void sendToStudent(Test test, Student student, int mark) {
+        String mes = String.format(
+                "Уважаемый, %s!\n" +
+                        "Вы завершили прохождения теста \"%s\" на оценку %s",
+                student.getFullName(),
+                test.getTitle(),
+                mark
+        );
+        mailSender.send("Прохождение теста", student.getUsername(), mes);
+    }
+
+    private void sendToTeacher(Test test) {
+        String mes;
+        EducationGroup group = test.getModule().getEducationGroup();
+        int size = group.getStudents().size();
+        if (size == test.getStudentsMarks().size()) {
+            String url = "http://localhost:8080/educated/test/" + test.getId() + "/statistics";
+            for (Teacher teacher : group.getTeachers()) {
+                mes = String.format(
+                        "Уважаемый %s" +
+                                "Тест %s выполнен всеми студентами. Результаты Вы можете посмотреть на %s",
+                        teacher.getFullName(),
+                        test.getTitle(),
+                        url
+                );
+                mailSender.send("Прохождение теста", teacher.getUsername(), mes);
+            }
+        }
+    }
+
     // Возращает оценку за тест
     private int putMark(Map<Integer, Integer> marks, double currentMark) {
         float five = (float) marks.get(5) / 100;
@@ -203,34 +232,5 @@ public class StudentService {
         return countOfCorrectAnswers;
     }
 
-    private void sendToStudent(Test test, Student student, int mark) {
-        String mes = String.format(
-                "Уважаемый, %s!\n" +
-                        "Вы завершили прохождения теста \"%s\" на оценку %s",
-                student.getFullName(),
-                test.getTitle(),
-                mark
-        );
-        mailSender.send("Прохождение теста", student.getUsername(), mes);
-    }
-
-    private void sendToTeacher(Test test) {
-        String mes;
-        EducationGroup group = test.getModule().getEducationGroup();
-        int size = group.getStudents().size();
-        if (size == test.getStudentsMarks().size()) {
-            String url = "http://localhost:8080/educated/test/" + test.getId() + "/statistics";
-            for (Teacher teacher : group.getTeachers()) {
-                mes = String.format(
-                        "Уважаемый %s" +
-                                "Тест %s выполнен всеми студентами. Результаты Вы можете посмотреть на %s",
-                        teacher.getFullName(),
-                        test.getTitle(),
-                        url
-                );
-                mailSender.send("Прохождение теста", teacher.getUsername(), mes);
-            }
-        }
-    }
 
 }

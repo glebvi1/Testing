@@ -36,6 +36,7 @@ public class InteractionUserWithSystemAdminController {
     @Value("${recaptcha.secret}")
     private String secret;
 
+    // Отпрвка письма системному администратору
     @GetMapping
     public String writeMessage(Model model,
                                @AuthenticationPrincipal Users user) {

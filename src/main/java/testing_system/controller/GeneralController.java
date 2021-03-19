@@ -20,6 +20,7 @@ public class GeneralController {
     @Autowired
     private UserService userService;
 
+    // Изменение данных любым пользователем
     @GetMapping("/edit")
     public String editYourself(@AuthenticationPrincipal Users user,
                                Model model) {
@@ -28,9 +29,11 @@ public class GeneralController {
         return "edit_user";
     }
 
+    // Отпрвка новых данных
+    // В случае изменение почты, отправляется новый активационных код
     @PostMapping("/edit")
     public String editYourself(@AuthenticationPrincipal Users user,
-                               @RequestParam(name = "email") String email,
+                               @RequestParam(name = "username") String email,
                                @RequestParam(name = "fullName") String name,
                                @RequestParam(name = "password1") String newPassword,
                                @RequestParam(name = "password2") String confirmPassword,
@@ -38,11 +41,12 @@ public class GeneralController {
 
         if (!userService.updateUser(user, name, email, newPassword, confirmPassword)) {
             model.addAttribute("message", "Введенные данные не корректны. Пожалуйста, проверьте их.");
-        } else {
-            model.addAttribute("message", "Данные успешно изменены!");
+            model.addAttribute("user", user);
+            model.addAttribute("role", auxiliaryService.getRole(user));
+            return "edit_user";
         }
 
-        return "edit_user";
+        return "redirect:/about";
     }
 
 }

@@ -10,6 +10,7 @@ import java.util.Set;
 @Service
 public class AuxiliaryService {
 
+    // Защита от перемещения учителей в группы, в которых они не ведут занятия
     public boolean security(Users user, EducationGroup educationGroup) {
 
         for (Users u : educationGroup.getStudents()) {
@@ -26,6 +27,7 @@ public class AuxiliaryService {
         return user.getRoles().contains(Roles.TEACHER_ADMIN);
     }
 
+    // Верхняя роль пользователя
     public String getRole(Users user) {
         Set<Roles> roles = user.getRoles();
         if (roles.contains(Roles.SYSTEM_ADMIN)) {

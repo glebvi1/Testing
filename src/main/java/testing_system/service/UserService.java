@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Student;
 import testing_system.domain.people.Users;
@@ -37,19 +38,39 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    // Изменение данных пользователя
     public boolean updateUser(Users user, String newName, String newEmail, String newPassword, String confirmPassword) {
-        if (!user.getPassword().equals(confirmPassword)) {
+        if (!passwordEncoder.matches(confirmPassword, user.getPassword())) {
             return false;
         }
 
-        user.setFullName(newName);
-        user.setUsername(newEmail);
-        user.setPassword(passwordEncoder.encode(newPassword));
+        boolean isEmailChanged = (newEmail != null && !newEmail.equals(user.getUsername())) ||
+                (user != null && !user.equals(newEmail));
+
+        if (isEmailChanged) {
+            Users userFromDb = userRepo.findByUsername(newEmail);
+            if (userFromDb != null) {
+                return false;
+            }
+            user.setUsername(newEmail);
+            if (sendActivationCode(user)) return false;
+            user.setActivatedCode(UUID.randomUUID().toString());
+        }
+
+        if (!StringUtils.isEmpty(newName)) {
+            user.setFullName(newName);
+        }
+        if (StringUtils.isEmpty(newPassword) ) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+        }
+
         userRepo.save(user);
 
         return true;
     }
 
+    // Сохранение пользователя в БД
+    // Отправление активационного кода на указанную почту
     public boolean addUser(Student user) {
         Users userFromDb = userRepo.findByUsername(user.getUsername());
 
@@ -62,6 +83,13 @@ public class UserService implements UserDetailsService {
         user.setRoles(Collections.singleton(Roles.STUDENT));
         user.setActivatedCode(UUID.randomUUID().toString());
 
+        if (sendActivationCode(user)) return false;
+        studentRepo.save(user);
+
+        return true;
+    }
+
+    private boolean sendActivationCode(Users user) {
         String message = String.format(
                 "Уважаемый %s, пожалуйста, перейдите по ссылке для активации аккаунта.\n"+
                 "http://localhost:8080/activate/%s",
@@ -73,13 +101,12 @@ public class UserService implements UserDetailsService {
         try {
             mailSender.send("Код активации", user.getUsername(), message);
         } catch (MailSendException m) {
-            return false;
+            return true;
         }
-        studentRepo.save(user);
-
-        return true;
+        return false;
     }
 
+    // Успешно ли прошла активация
     public boolean isActivated(String code) {
         Users userFromDb = userRepo.findByActivatedCode(code);
         if (userFromDb == null) {

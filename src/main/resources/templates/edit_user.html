@@ -15,11 +15,11 @@
 <h4>Изменить данные</h4>
 <p>[[${message}]]</p>
 
-<form th:action="@{/system-admin/edit/{id}(id=${user.getId()})}" method="post">
+<form th:action="@{/general/edit}" method="post">
     <div class="form-group">
         <div><label> Новое имя: <input th:value="${user.getFullName()}" type="text" name="fullName" class="form-control" required/> </label></div>
         <div><label> Новая почта: <input th:value="${user.getUsername()}" type="email" name="username" class="form-control" required/> </label></div>
-        <div><label> Новый пароль: <input type="password" name="password1" class="form-control" required/> </label></div>
+        <div><label> Новый пароль (если не хотите его изменять - укажите старый): <input type="password" name="password1" class="form-control" required/> </label></div>
         <div><label> Старый пароль (подтверждение): <input type="password" name="password2" class="form-control" required/> </label></div>
     </div>
 

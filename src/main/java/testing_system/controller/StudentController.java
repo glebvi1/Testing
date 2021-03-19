@@ -27,6 +27,7 @@ public class StudentController {
     @Autowired
     private TestRepo testRepo;
 
+    // Все учебные группы студента
     @GetMapping
     public String allGroup(@AuthenticationPrincipal Student student,
                            Model model) {
@@ -38,6 +39,7 @@ public class StudentController {
         return "all_groups";
     }
 
+    // Прохождения теста
     @GetMapping("/test/{id}")
     public String doTest(@PathVariable(name = "id") long id,
                          Model model,
@@ -63,10 +65,10 @@ public class StudentController {
 
         model.addAttribute("isDone", false);
 
-
         return "test";
     }
 
+    // Отпрвка выбранных ответов, выставление оценки
     @PostMapping("/test/{id}")
     public String doTest(@PathVariable(name = "id") long id,
                          @RequestParam(name = "answers") List<String> htmlAnswers,

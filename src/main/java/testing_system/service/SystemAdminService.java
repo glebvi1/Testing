@@ -33,6 +33,41 @@ public class SystemAdminService {
     @Autowired
     private MessageRepo messageRepo;
 
+    // Удаление пользователя из БД
+    public void deleteUser(Users user) {
+        if (user.getRoles().contains(Roles.STUDENT)) {
+            Student student = studentRepo.findById(user.getId()).get();
+
+            for (EducationGroup educationGroup : student.getGroups()) {
+                // Удаление оценок, хранящихся в тестах
+                educationGroup.getModules().forEach(module ->
+                        module.getTests().forEach(test ->
+                                test.getStudentsMarks().remove(user.getId())));
+
+                // Удаление студента из группы
+                educationGroup.getStudents().remove(student);
+                educationGroupRepo.save(educationGroup);
+            }
+
+            studentRepo.deleteById(user.getId());
+
+        } else if (user.getRoles().contains(Roles.TEACHER)) {
+            Teacher teacher = teacherRepo.findById(user.getId()).get();
+
+            // Удаление студента из группы
+            for (EducationGroup educationGroup : teacher.getGroups()) {
+                educationGroup.getStudents().remove(teacher);
+                educationGroupRepo.save(educationGroup);
+            }
+
+            teacherRepo.deleteById(user.getId());
+        }
+        else {
+            userRepo.deleteById(user.getId());
+        }
+
+    }
+
     // Изменение роли пользователя
     public boolean editUser(Users user, Map<String, String> htmlRoles) {
         if (htmlRoles.isEmpty()) {

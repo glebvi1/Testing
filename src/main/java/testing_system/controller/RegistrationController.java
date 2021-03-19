@@ -43,6 +43,10 @@ public class RegistrationController {
     @Value("${recaptcha.secret}")
     private String secret;
 
+    // Регистрация пользователя
+    // Роли по умолчанию - студент
+    // На указанную почту отправляется код активации
+    // Без подтверждения кода активации, аккаунт активирован не будет
     @GetMapping("/registr-form")
     public String registration() {return "reg";}
 
@@ -71,6 +75,7 @@ public class RegistrationController {
         return "reg";
     }
 
+    // Авторизация пользователя
     @GetMapping("/login")
     public String login() {
         return "login";
@@ -90,6 +95,7 @@ public class RegistrationController {
         return "redirect:/about";
     }
 
+    // Подтверждение кода активации
     @GetMapping("/activate/{code}")
     public String activate(Model model,
                            @PathVariable String code) {
@@ -103,6 +109,7 @@ public class RegistrationController {
         return "login";
     }
 
+    // Общая страница пользователей
     @GetMapping("/about")
     public String aboutUs(@AuthenticationPrincipal Users user,
                           Model model) {

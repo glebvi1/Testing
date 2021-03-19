@@ -37,6 +37,7 @@ public class TeacherAdminController {
     @Autowired
     private UserRepo userRepo;
 
+    // Список всех пользователей
     @GetMapping("/all-users")
     public String listUsers(Model model,
                             @RequestParam(required = false) String username,
@@ -76,6 +77,7 @@ public class TeacherAdminController {
         return "list_of_users";
     }
 
+    // Список всех групп
     @GetMapping("/all-groups")
     public String allGroups(Model model,
                             @AuthenticationPrincipal Users user,
@@ -103,6 +105,7 @@ public class TeacherAdminController {
         return "all_groups";
     }
 
+    // Изменение группы
     @GetMapping("/all-groups/edit/{id}")
     public String editGroup(@PathVariable(name = "id") EducationGroup educationGroup,
                             Model model,
