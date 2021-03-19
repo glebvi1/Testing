@@ -210,17 +210,15 @@ public class SystemAdminService {
         // Добавляем студентов в список
         List<Student> students = oldEducationGroup.getStudents();
         List<Student> newStudents = getStudent(studentsEmails);
-        if (newStudents.size() == 0) {
-            return false;
-        }
-        students.addAll(newStudents);
 
         // Добавляем учителей в список
         List<Teacher> teachers = oldEducationGroup.getTeachers();
         List<Teacher> newTeachers = getTeacher(teachersEmails);
-        if (newTeachers.size() == 0) {
+        if (newTeachers.size() == 0 && newStudents.size() == 0) {
             return false;
         }
+
+        students.addAll(newStudents);
         teachers.addAll(newTeachers);
 
         // Создаем группу

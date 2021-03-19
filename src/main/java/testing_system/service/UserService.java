@@ -39,17 +39,12 @@ public class UserService implements UserDetailsService {
     }
 
     // Изменение данных пользователя
-    public boolean updateUser(Users user, String newName, String newEmail, String newPassword, String confirmPassword) {
-        if (!passwordEncoder.matches(confirmPassword, user.getPassword())) {
-            return false;
-        }
-
-        boolean isEmailChanged = (newEmail != null && !newEmail.equals(user.getUsername())) ||
-                (user != null && !user.equals(newEmail));
+    public boolean updateUser(Users user, String newName, String newEmail, String newPassword) {
+        boolean isEmailChanged = !user.getUsername().equals(newEmail) && !StringUtils.isEmpty(newEmail);
 
         if (isEmailChanged) {
             Users userFromDb = userRepo.findByUsername(newEmail);
-            if (userFromDb != null) {
+            if (userFromDb.getId() != user.getId()) {
                 return false;
             }
             user.setUsername(newEmail);

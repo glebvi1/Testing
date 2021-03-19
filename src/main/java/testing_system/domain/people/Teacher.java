@@ -2,7 +2,10 @@ package testing_system.domain.people;
 
 import testing_system.domain.group.EducationGroup;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.List;
 
 @Entity

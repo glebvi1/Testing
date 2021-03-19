@@ -23,7 +23,7 @@
         <div class="collapse" id="collapseExample">
             <div class="form-group mt-3">
                 <div th:each="number : ${studentsNumbers}" class="forum-group mt-3">
-                    <label>[[${number}]]<input  placeholder="Почта студента: " th:name="studentsEmails" type="text" class="form-control" th:required="${number} == 1"/></label>
+                    <label>[[${number}]]<input  placeholder="Почта студента: " th:name="studentsEmails" type="text" class="form-control" /></label>
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
         <div class="collapse" id="collapseExample1">
             <div class="form-group mt-3">
                 <div th:each="number : ${teacherNumbers}" class="forum-group mt-3">
-                    <label>[[${number}]]<input  placeholder="Почта учителя: " th:name="teachersEmails" type="text" class="form-control" th:required="${number} == 1" /></label>
+                    <label>[[${number}]]<input  placeholder="Почта учителя: " th:name="teachersEmails" type="text" class="form-control"/></label>
                 </div>
             </div>
         </div>

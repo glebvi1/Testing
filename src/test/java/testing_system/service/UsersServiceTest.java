@@ -105,20 +105,4 @@ public class UsersServiceTest {
                 .save(ArgumentMatchers.any(Users.class));
     }
 
-    @Test
-    public void updateUserFailTest() {
-        Users user = new Users();
-        user.setFullName("name");
-        user.setUsername("email");
-        user.setPassword("123");
-
-        boolean isUpdate = userService.updateUser(user, "new name", "new email", "new password", "456");
-
-        Assert.assertFalse(isUpdate);
-        Assert.assertEquals("email", user.getUsername());
-        Assert.assertEquals("name", user.getFullName());
-        Assert.assertEquals("123", user.getPassword());
-        Mockito.verify(userRepo, Mockito.times(0))
-                .save(ArgumentMatchers.any(Users.class));
-    }
 }

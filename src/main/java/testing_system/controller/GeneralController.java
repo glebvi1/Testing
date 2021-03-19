@@ -36,10 +36,9 @@ public class GeneralController {
                                @RequestParam(name = "username") String email,
                                @RequestParam(name = "fullName") String name,
                                @RequestParam(name = "password1") String newPassword,
-                               @RequestParam(name = "password2") String confirmPassword,
                                Model model) {
 
-        if (!userService.updateUser(user, name, email, newPassword, confirmPassword)) {
+        if (!userService.updateUser(user, name, email, newPassword)) {
             model.addAttribute("message", "Введенные данные не корректны. Пожалуйста, проверьте их.");
             model.addAttribute("user", user);
             model.addAttribute("role", auxiliaryService.getRole(user));

@@ -45,7 +45,6 @@ public class StudentServiceTest {
 
         Assert.assertEquals(5, mark);
         assertForDoTest(test, student);
-
     }
 
     @Test

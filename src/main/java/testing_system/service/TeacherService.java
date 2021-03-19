@@ -50,12 +50,18 @@ public class TeacherService {
             List<Boolean> newCorrectAnswer = new ArrayList<>();
             int size = answerOptions.size() - 1;
             int step = (int) (Math.random() * ++size);
+            int j = 0;
 
-            for (int j = 0; j < size; j++) {
+            while (newAnswerOptions.size() != answerOptions.size()) {
                 int replace = (j + step) % size;
+                if (newAnswerOptions.contains(answerOptions.get(replace))) {
+                    continue;
+                }
                 newAnswerOptions.add(answerOptions.get(replace));
                 newCorrectAnswer.add(correctAnswer.get(replace));
+                j++;
             }
+
             question.setAnswersOptions(newAnswerOptions);
             question.setCorrectAnswer(newCorrectAnswer);
             questionRepo.save(question);
