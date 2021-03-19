@@ -44,18 +44,24 @@ public class UserService implements UserDetailsService {
 
         if (isEmailChanged) {
             Users userFromDb = userRepo.findByUsername(newEmail);
-            if (userFromDb.getId() != user.getId()) {
-                return false;
+            if (userFromDb != null) {
+                if (userFromDb.getId() != user.getId()) {
+                    return false;
+                }
             }
             user.setUsername(newEmail);
-            if (sendActivationCode(user)) return false;
             user.setActivatedCode(UUID.randomUUID().toString());
+            if (sendActivationCode(user)) {
+                user.setActivatedCode(null);
+                return false;
+            }
+
         }
 
         if (!StringUtils.isEmpty(newName)) {
             user.setFullName(newName);
         }
-        if (StringUtils.isEmpty(newPassword) ) {
+        if (!StringUtils.isEmpty(newPassword)) {
             user.setPassword(passwordEncoder.encode(newPassword));
         }
 
