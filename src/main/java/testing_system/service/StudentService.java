@@ -1,7 +1,9 @@
 package testing_system.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.people.Student;
 import testing_system.domain.people.Teacher;
@@ -10,10 +12,9 @@ import testing_system.domain.test.Test;
 import testing_system.repos.people.StudentRepo;
 import testing_system.repos.test.TestRepo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class StudentService {
@@ -23,6 +24,9 @@ public class StudentService {
     private TestRepo testRepo;
     @Autowired
     private MailSender mailSender;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     // Выставляется оценка за тест, отправляется письмо студентам и учителям
     public int doTest(Test test, List<String> htmlAnswers, Student student) {
@@ -98,6 +102,32 @@ public class StudentService {
 
     }
 
+    // Сохраняются файлы, прикрепленные учеником
+    public void doTestWithFile(Test test, List<MultipartFile> files, Student student) throws IOException {
+        Map<Long, String> solving = new HashMap<>();
+        String sol = "";
+
+        // Сохраняем в папку файлы
+        for (MultipartFile file : files) {
+            if (file != null && !file.getOriginalFilename().isEmpty()) {
+                String uuidFile = UUID.randomUUID().toString();
+                String resultFilename = uuidFile + "." + file.getOriginalFilename();
+
+                file.transferTo(new File(uploadPath + "/" + resultFilename));
+
+                sol += resultFilename + " ";
+            }
+        }
+
+        sol = sol.substring(0, sol.length() - 1);
+        solving.put(student.getId(), sol);
+
+        test.setStudentsSolving(solving);
+        test.setStudentsMarks(new HashMap<>());
+
+        testRepo.save(test);
+    }
+
     // Состовляем из билета тест (рандомно выбираем вопросы из разделов)
     public Test generateTestFromTicket(Test test) {
         Test newTest = new Test();
@@ -148,6 +178,7 @@ public class StudentService {
         return news;
     }
 
+    // Отправление письма ученику
     private void sendToStudent(Test test, Student student, int mark) {
         String mes = String.format(
                 "Уважаемый, %s!\n" +
@@ -159,6 +190,7 @@ public class StudentService {
         mailSender.send("Прохождение теста", student.getUsername(), mes);
     }
 
+    // Отправление письма учиелю
     private void sendToTeacher(Test test) {
         String mes;
         EducationGroup group = test.getModule().getEducationGroup();
@@ -231,6 +263,5 @@ public class StudentService {
 
         return countOfCorrectAnswers;
     }
-
 
 }

@@ -5,13 +5,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import testing_system.domain.people.Student;
 import testing_system.domain.test.Question;
 import testing_system.domain.test.Test;
 import testing_system.repos.test.TestRepo;
 import testing_system.service.StudentService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +54,12 @@ public class StudentController {
 
         List<Question> questions = studentService.initTest(test);
 
-        if (test.getSections() == 0) {
+        if (!StringUtils.isEmpty(test.getFilename())) {
+            model.addAttribute("questions", questions.get(0).getQuestion());
+            model.addAttribute("test", test);
+            model.addAttribute("file", true);
+            return "do_test_with_files";
+        } else if (test.getSections() == 0) {
             model.addAttribute("questions", questions);
             model.addAttribute("test", test);
         } else if (generatedTestFromTicket == null || generatedTestFromTicket.getId() != test.getId()){
@@ -71,17 +79,21 @@ public class StudentController {
     // Отпрвка выбранных ответов, выставление оценки
     @PostMapping("/test/{id}")
     public String doTest(@PathVariable(name = "id") long id,
-                         @RequestParam(name = "answers") List<String> htmlAnswers,
+                         @RequestParam(name = "answers", required = false) List<String> htmlAnswers,
                          Model model,
-                         @AuthenticationPrincipal Student student) {
+                         @AuthenticationPrincipal Student student,
+                         @RequestParam(name = "files", required = false) List<MultipartFile> files) throws IOException {
         Test test = testRepo.findById(id).get();
-        studentService.initTest(test);
 
         model.addAttribute("test", test);
-        int mark;
-        if (generatedTestFromTicket == null) {
+        int mark = 0;
+        if (!StringUtils.isEmpty(test.getFilename())) {
+            studentService.doTestWithFile(test, files, student);
+        } else if (generatedTestFromTicket == null) {
+            studentService.initTest(test);
             mark = studentService.doTest(test, htmlAnswers, student);
         } else {
+            studentService.initTest(test);
             mark = studentService.doTicket(generatedTestFromTicket, test, htmlAnswers, student);
             generatedTestFromTicket = null;
         }

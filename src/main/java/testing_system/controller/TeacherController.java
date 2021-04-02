@@ -1,25 +1,35 @@
 package testing_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.group.Module;
+import testing_system.domain.people.Student;
 import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
 import testing_system.domain.test.Question;
 import testing_system.domain.test.Test;
+import testing_system.repos.people.StudentRepo;
 import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.people.UserRepo;
 import testing_system.service.AuxiliaryService;
 import testing_system.service.StudentService;
 import testing_system.service.TeacherService;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/educated")
@@ -35,8 +45,13 @@ public class TeacherController {
     private TeacherRepo teacherRepo;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private StudentRepo studentRepo;
 
     private int sectionCount = 5;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     // Группы, в которых пользователь является учителем
     @GetMapping
@@ -307,6 +322,63 @@ public class TeacherController {
         return "redirect:/educated/module/" + module.getId();
     }
 
+    // Добавления теста с файлом (get)
+    @GetMapping("/module/{id}/add-files")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public String addTestWithFile(@PathVariable(name = "id") Module module,
+                                  Model model,
+                                  @AuthenticationPrincipal Users user) {
+
+        if (!auxiliaryService.security(user, module.getEducationGroup())) {
+            return "error";
+        }
+
+        String role = auxiliaryService.getRole(user);
+        if (role.equals("teacher_admin") && user.getRoles().contains(Roles.TEACHER)) {
+            if (!teacherRepo.findById(user.getId()).get().getGroups().contains(module.getEducationGroup())) {
+                return "redirect:/educated/module/" + module.getId();
+            }
+        }
+        model.addAttribute("message", "" + module.getId());
+        model.addAttribute("module", module);
+
+        return "create_test_with_file";
+    }
+
+    // Добавления теста с файлом (post)
+    @PostMapping("/module/{id}/add-files")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public String addTestWithFile(@PathVariable(name = "id") Module module,
+                                  Model model,
+                                  @AuthenticationPrincipal Users user,
+                                  @RequestParam("file") MultipartFile file,
+                                  @RequestParam("title") String title,
+                                  @RequestParam String question) throws IOException {
+
+        if (!auxiliaryService.security(user, module.getEducationGroup())) {
+            return "error";
+        }
+
+        String role = auxiliaryService.getRole(user);
+        if (role.equals("teacher_admin") && user.getRoles().contains(Roles.TEACHER)) {
+            if (!teacherRepo.findById(user.getId()).get().getGroups().contains(module.getEducationGroup())) {
+                return "redirect:/educated/module/" + module.getId();
+            }
+        }
+
+        model.addAttribute("module", module);
+        model.addAttribute("message", "" + module.getId());
+
+        if (contains(module, title)) {
+            model.addAttribute("message", "Тест с таким названием уже существует.");
+            return "create_ticket";
+        }
+
+        teacherService.addTestWithFile(file, title, question, module);
+
+        return "redirect:/educated/module/" + module.getId();
+    }
+
     // Статистика выполнения теста
     @GetMapping("/test/{id}/statistics")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
@@ -346,6 +418,91 @@ public class TeacherController {
         model.addAttribute("module", test.getModule());
 
         return "statistics";
+    }
+
+    @GetMapping("/test/{id}/statistics-with-files")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
+    public String statisticsWithFiles(Model model,
+                                      @PathVariable(name = "id") Test test,
+                                      @AuthenticationPrincipal Users user) {
+
+        if (!auxiliaryService.security(user, test.getModule().getEducationGroup())) {
+            return "error";
+        }
+
+        List<Integer> allMarks = new ArrayList<>(test.getStudentsMarks().values());
+
+        if (allMarks.size() != 0) {
+            String[] strings = teacherService.statistics(allMarks);
+            model.addAttribute("max", strings[0]);
+            model.addAttribute("min", strings[1]);
+            model.addAttribute("mean", strings[2]);
+        }
+
+        List<Student> allUsers = new ArrayList<>(30);
+
+        for (long key : test.getStudentsSolving().keySet()) {
+            allUsers.add(studentRepo.findById(key).get());
+        }
+
+        model.addAttribute("allMarks", allMarks);
+        model.addAttribute("users", allUsers);
+        model.addAttribute("questions", test.getQuestions());
+        model.addAttribute("test", test);
+        model.addAttribute("question", test.getQuestions().get(0).getQuestion());
+
+        if (test.getSections() != 0) {
+            model.addAttribute("div1", test.getQuestions().size() / test.getSections());
+        }
+        model.addAttribute("module", test.getModule());
+
+        return "statistics_with_files";
+    }
+
+    @GetMapping("/test/{id}/statistics-with-files/{id1}")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
+    public String checkSolving(Model model,
+                               @PathVariable(name = "id") Test test,
+                               @PathVariable(name = "id1") Student student,
+                               @AuthenticationPrincipal Users user) {
+        if (!auxiliaryService.security(user, test.getModule().getEducationGroup())) {
+            return "error";
+        }
+
+        String solving = test.getStudentsSolving().get(student.getId());
+        model.addAttribute("files", solving.split(" "));
+        model.addAttribute("info", student.getFullName());
+        model.addAttribute("id", test.getId());
+        model.addAttribute("id1", student.getId());
+
+        return "check";
+    }
+
+    @PostMapping("/test/{id}/statistics-with-files/{id1}")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
+    public String checkSolving(Model model,
+                               @PathVariable(name = "id") Test test,
+                               @PathVariable(name = "id1") Student student,
+                               @AuthenticationPrincipal Users user,
+                               @RequestParam(name = "mark") Integer mark) {
+        if (!auxiliaryService.security(user, test.getModule().getEducationGroup())) {
+            return "error";
+        }
+
+        String solving = test.getStudentsSolving().get(student.getId());
+        model.addAttribute("files", solving.split(" "));
+
+        if (mark <= 1 || mark > 5) {
+            model.addAttribute("info", student.getFullName());
+            model.addAttribute("id", test.getId());
+            model.addAttribute("id1", student.getId());
+            model.addAttribute("message", "Оценка должна находиться в интервале [2; 5]");
+            return "check";
+        }
+
+        teacherService.putMark(student, test, mark);
+
+        return "redirect:/educated/test/" + test.getId() + "/statistics-with-files";
     }
 
     private int[] fillArray(int n) {

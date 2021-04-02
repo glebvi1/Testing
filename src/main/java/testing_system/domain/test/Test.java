@@ -3,6 +3,7 @@ package testing_system.domain.test;
 import testing_system.domain.group.Module;
 
 import javax.persistence.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,14 @@ public class Test {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Module module;
+
+    // Прикрепленный файл от учителя
+    private String filename;
+
+    // Long - id студента, String - файлы, идущие через пробел
+    // Файлы, прикрепленные студентом
+    @ElementCollection(fetch = FetchType.LAZY)
+    private Map<Long, String> studentsSolving;
 
     public Test() {}
 
@@ -87,6 +96,22 @@ public class Test {
 
     public void setSections(int sections) {
         this.sections = sections;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public Map<Long, String> getStudentsSolving() {
+        return studentsSolving;
+    }
+
+    public void setStudentsSolving(Map<Long, String> studentsSolving) {
+        this.studentsSolving = studentsSolving;
     }
 
 }

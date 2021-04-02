@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import testing_system.domain.dto.CaptchaResponseDto;
+import testing_system.domain.people.Teacher;
 import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
 import testing_system.domain.people.Student;
@@ -39,6 +40,8 @@ public class RegistrationController {
     private RestTemplate restTemplate;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private TeacherRepo teacherRepo;
 
     @Value("${recaptcha.secret}")
     private String secret;
@@ -219,6 +222,14 @@ public class RegistrationController {
         studentRepo.save(teacher1);
         studentRepo.save(teacher2);
         studentRepo.save(teacher3);
+
+        Teacher teacher4 = new Teacher();
+        teacher4.setUsername("a@a.a");
+        teacher4.setPassword(passwordEncoder.encode("1"));
+        teacher4.setRoles(Collections.singleton(Roles.TEACHER));
+        teacher4.setFullName("teacher3");
+
+        teacherRepo.save(teacher4);
 
     }
 

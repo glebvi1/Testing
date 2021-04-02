@@ -9,7 +9,7 @@
 
 <header th:insert="parts/teacher_header :: teacher_header"></header>
 
-<h4>Создать билет</h4>
+<h4>Создать работу</h4>
 <p>[[${message}]]</p>
 
 <form method="get" th:action="@{/educated/module/{id}/add-ticket(id=${module.getId()})}">
@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <button class="btn btn-primary" type="submit">Создать билет</button>
+    <button class="btn btn-primary" type="submit">Создать работу</button>
 </form>
 
 

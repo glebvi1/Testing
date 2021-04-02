@@ -16,7 +16,11 @@
     <div class="card" th:each="test : ${tests}">
         <div class="card-body" >
             <h4 class="card-title" th:text="${test.getTitle()}"></h4>
-            <a th:href="@{/educated/test/{id}/statistics(id=${test.getId()})}" th:if="${role} == 'teacher'" class="btn btn-primary">Посмотреть</a>
+            <div th:if="${role} == 'teacher'">
+                <a th:href="@{/educated/test/{id}/statistics(id=${test.getId()})}" th:if="${test.getFilename() == null}" class="btn btn-primary">Посмотреть</a>
+                <a th:href="@{/educated/test/{id}/statistics-with-files(id=${test.getId()})}" th:if="${test.getFilename() != null}" class="btn btn-primary">Посмотреть</a>
+            </div>
+
             <div th:if="${role} == 'student'">
                 <a th:href="@{/student/test/{id}(id=${test.getId()})}" th:if="${!test.getStudentsMarks().containsKey(studentId)}" class="btn btn-primary">Посмотреть</a>
                 <h6 th:text="${test.getStudentsMarks().get(studentId)}" th:if="${test.getStudentsMarks().containsKey(studentId)}" class="text-primary"></h6>

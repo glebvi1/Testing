@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+
+<p>Проверка работы [[${info}]]</p>
+<p>[[${message}]]</p>
+
+<div class="p-3 mb-2 bg-light text-dark">
+    <div th:each="file : ${files}">
+        <img th:src="@{/img/{filename}(filename = ${file})}" height="1100" width="1100">
+    </div>
+</div>
+
+<form th:action="@{/educated/test/{id}/statistics-with-files/{id1}(id=${id}, id1=${id1})}" method="post">
+    <div class="form-group">
+        <div><label> Оценка: <input type="number" name="mark" class="form-control" required/> </label></div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Поставить</button>
+</form>
+
+</body>
+</html>

@@ -85,6 +85,7 @@ create table test
     sections integer not null,
     title varchar(255),
     module_id bigint,
+    filename varchar(255),
     primary key (id));
 
 create table test_grading_system
@@ -92,6 +93,12 @@ create table test_grading_system
     grading_system integer,
     grading_system_key integer not null,
     primary key (test_id, grading_system_key));
+
+create table test_students_solving
+    (test_id bigint not null,
+     students_solving varchar(255),
+     students_solving_key bigint not null,
+     primary key (test_id, students_solving_key));
 
 create table test_questions
     (test_id bigint not null,

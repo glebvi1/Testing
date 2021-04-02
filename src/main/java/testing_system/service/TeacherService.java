@@ -1,17 +1,23 @@
 package testing_system.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.group.Module;
+import testing_system.domain.people.Student;
 import testing_system.domain.test.Question;
 import testing_system.domain.test.Test;
 import testing_system.repos.group.EducationGroupRepo;
 import testing_system.repos.group.ModuleRepo;
+import testing_system.repos.people.StudentRepo;
 import testing_system.repos.test.QuestionRepo;
 import testing_system.repos.test.TestRepo;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +31,11 @@ public class TeacherService {
     private ModuleRepo moduleRepo;
     @Autowired
     private EducationGroupRepo educationGroupRepo;
+    @Autowired
+    private StudentRepo studentRepo;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     // Создание ногово теста
     public void addTest(String title, List<String> htmlQuestions, List<String> htmlAnswersOptions,
@@ -43,29 +54,7 @@ public class TeacherService {
         Test test = new Test();
         test.setTitle(title);
 
-        for (Question question : questions) {
-            List<String> answerOptions = question.getAnswersOptions();
-            List<String> newAnswerOptions = new ArrayList<>();
-            List<Boolean> correctAnswer = question.getCorrectAnswer();
-            List<Boolean> newCorrectAnswer = new ArrayList<>();
-            int size = answerOptions.size() - 1;
-            int step = (int) (Math.random() * ++size);
-            int j = 0;
-
-            while (newAnswerOptions.size() != answerOptions.size()) {
-                int replace = (j + step) % size;
-                if (newAnswerOptions.contains(answerOptions.get(replace))) {
-                    continue;
-                }
-                newAnswerOptions.add(answerOptions.get(replace));
-                newCorrectAnswer.add(correctAnswer.get(replace));
-                j++;
-            }
-
-            question.setAnswersOptions(newAnswerOptions);
-            question.setCorrectAnswer(newCorrectAnswer);
-            questionRepo.save(question);
-        }
+        shuffle(questions);
 
         test.setQuestions(questions);
         test.setGradingSystem(gradingSystem);
@@ -154,6 +143,78 @@ public class TeacherService {
         }
 
         return answers;
+    }
+
+    // Создание нового теста с прикрепленным файлом
+    public void addTestWithFile(MultipartFile file, String title, String question,
+                                Module module) throws IOException {
+        Test test = new Test();
+
+        if (file != null && !file.getOriginalFilename().isEmpty()) {
+            File uploadDir = new File(uploadPath);
+
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+            }
+
+            String uuidFile = UUID.randomUUID().toString();
+            String resultFilename = uuidFile + "." + file.getOriginalFilename();
+
+            file.transferTo(new File(uploadPath + "/" + resultFilename));
+            test.setFilename(resultFilename);
+        }
+
+        Question question1 = new Question(question);
+        question1 = questionRepo.save(question1);
+        List<Question> list = new ArrayList<>();
+        list.add(question1);
+
+        test.setTitle(title);
+        test.setQuestions(list);
+        test.setModule(module);
+        test.setSections(0);
+        test.setGradingSystem(null);
+
+        testRepo.save(test);
+
+        module.getTests().add(test);
+        moduleRepo.save(module);
+    }
+
+    // Выставление оценки за тест учителем
+    public void putMark(Student student, Test test, int mark) {
+        test.getStudentsMarks().put(student.getId(), mark);
+        student.getAllMarks().put(test.getId(), mark);
+
+        testRepo.save(test);
+        studentRepo.save(student);
+    }
+
+    // Перемешка правильных ответов
+    private void shuffle(List<Question> questions) {
+        for (Question question : questions) {
+            List<String> answerOptions = question.getAnswersOptions();
+            List<String> newAnswerOptions = new ArrayList<>();
+            List<Boolean> correctAnswer = question.getCorrectAnswer();
+            List<Boolean> newCorrectAnswer = new ArrayList<>();
+            int size = answerOptions.size() - 1;
+            int step = (int) (Math.random() * ++size);
+            int j = 0;
+
+            while (newAnswerOptions.size() != answerOptions.size()) {
+                int replace = (j + step) % size;
+                if (newAnswerOptions.contains(answerOptions.get(replace))) {
+                    continue;
+                }
+                newAnswerOptions.add(answerOptions.get(replace));
+                newCorrectAnswer.add(correctAnswer.get(replace));
+                j++;
+            }
+
+            question.setAnswersOptions(newAnswerOptions);
+            question.setCorrectAnswer(newCorrectAnswer);
+            questionRepo.save(question);
+        }
     }
 
     // Обработка правильных ответов, пришедших с клиента

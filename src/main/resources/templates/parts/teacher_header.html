@@ -6,7 +6,8 @@
             <a class="p-2 text-dark" th:href="@{/educated/course/{id}/all-participants(id=${group.getId()})}" th:if="${group} != null">Список участников</a>
             <a class="p-2 text-dark" th:href="@{/educated/module/{id}(id=${module.getId()})}" th:if="${module} != null">[[${module.getTitle()}]]</a>
             <a class="p-2 text-dark" th:href="@{/educated/module/{id}/add-test(id=${module.getId()})}" th:if="${module} != null">Добавить тест</a>
-            <a class="p-2 text-dark" th:href="@{/educated/module/{id}/add-ticket(id=${module.getId()})}" th:if="${module} != null">Добавить билет</a>
+            <a class="p-2 text-dark" th:href="@{/educated/module/{id}/add-ticket(id=${module.getId()})}" th:if="${module} != null">Добавить КР</a>
+            <a class="p-2 text-dark" th:href="@{/educated/module/{id}/add-files(id=${module.getId()})}" th:if="${module} != null">Добавить СР</a>
             <a class="p-2 text-dark" href="/interaction">Письмо администратору</a>
             <a class="p-2 text-dark" href="/general/edit">Редактировать профиль</a>
         </nav>
