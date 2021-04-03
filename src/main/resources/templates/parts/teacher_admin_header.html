@@ -5,6 +5,7 @@
             <a class="p-2 text-dark" href="/teacher-admin/all-groups">Список всех групп</a>
             <a class="p-2 text-dark" href="/educated">Мои группы</a>
             <a class="p-2 text-dark" href="/teacher-admin/all-users">Все пользователи</a>
+            <a class="p-2 text-dark" th:href="@{/educated/course/{id}/all-participants(id=${group.getId()})}" th:if="${group} != null">Список участников</a>
             <a class="p-2 text-dark" href="/interaction">Письмо администратору</a>
             <a class="p-2 text-dark" href="/general/edit">Редактировать профиль</a>
         </nav>

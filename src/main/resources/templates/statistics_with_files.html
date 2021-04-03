@@ -7,7 +7,8 @@
 </head>
 <body>
 
-<header th:insert="parts/teacher_header :: teacher_header"></header>
+<header th:insert="parts/teacher_header :: teacher_header" th:if="${role} == 'teacher'"></header>
+<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${role} == 'teacher_admin'"></header>
 
 <div class="p-3 mb-2 bg-light text-dark">
     <h4>Статистические данные</h4>
@@ -21,14 +22,21 @@
             <th scope="col">Имя</th>
             <th scope="col">Почта</th>
             <th scope="col">Оценка</th>
+            <th scope="col" th:if="${role} == 'teacher'">Оствить комментарий</th>
         </tr>
         <tr th:each="user, i : ${users}">
             <td th:text="${user.getFullName()}" ></td>
             <td th:text="${user.getUsername()}"></td>
             <td th:text="${allMarks.get(i.index)}" th:if="${user.getAllMarks().containsKey(test.getId())}"></td>
+
             <td><div><a
                     th:href="@{/educated/test/{id}/statistics-with-files/{id1}(id=${test.getId()}, id1=${user.getId()})}"
                     class="btn btn-primary" th:if="${!user.getAllMarks().containsKey(test.getId())}">Проверить
+            </a></div></td>
+
+            <td><div><a
+                    th:href="@{/educated/test/{id}/comments/{id1}(id=${test.getId()}, id1=${user.getId()})}"
+                    class="btn btn-primary" th:if="${role == 'teacher'}">Написать
             </a></div></td>
         </tr>
     </table>

@@ -8,18 +8,20 @@ import org.springframework.web.multipart.MultipartFile;
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.group.Module;
 import testing_system.domain.people.Student;
+import testing_system.domain.people.Teacher;
+import testing_system.domain.people.Users;
 import testing_system.domain.test.Question;
 import testing_system.domain.test.Test;
 import testing_system.repos.group.EducationGroupRepo;
 import testing_system.repos.group.ModuleRepo;
 import testing_system.repos.people.StudentRepo;
+import testing_system.repos.people.TeacherRepo;
 import testing_system.repos.test.QuestionRepo;
 import testing_system.repos.test.TestRepo;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TeacherService {
@@ -33,6 +35,10 @@ public class TeacherService {
     private EducationGroupRepo educationGroupRepo;
     @Autowired
     private StudentRepo studentRepo;
+    @Autowired
+    private MailSender mailSender;
+    @Autowired
+    private TeacherRepo teacherRepo;
 
     @Value("${upload.path}")
     private String uploadPath;
@@ -60,14 +66,55 @@ public class TeacherService {
         test.setGradingSystem(gradingSystem);
         test.setModule(module);
         test.setSections(section);
+        test.setType(false);
         testRepo.save(test);
 
         module.getTests().add(test);
         moduleRepo.save(module);
     }
 
-    // Статистика успеваемости за тест
+    // Создание нового теста с прикрепленным файлом
+    public void addTestWithFile(MultipartFile file, String title, String question,
+                                Module module) throws IOException {
+        Test test = new Test();
+
+        if (file != null && !file.getOriginalFilename().isEmpty()) {
+            File uploadDir = new File(uploadPath);
+
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+            }
+
+            String uuidFile = UUID.randomUUID().toString();
+            String resultFilename = uuidFile + "." + file.getOriginalFilename();
+
+            file.transferTo(new File(uploadPath + "/" + resultFilename));
+            test.setFilename(resultFilename);
+        }
+
+        Question question1 = new Question(question);
+        question1 = questionRepo.save(question1);
+        List<Question> list = new ArrayList<>();
+        list.add(question1);
+
+        test.setTitle(title);
+        test.setQuestions(list);
+        test.setModule(module);
+        test.setSections(0);
+        test.setGradingSystem(null);
+        test.setType(true);
+
+        testRepo.save(test);
+
+        module.getTests().add(test);
+        moduleRepo.save(module);
+    }
+
+    // Статистика успеваемости
     public String[] statistics(List<Integer> allMarks) {
+        if (allMarks.size() == 0) {
+            return new String[]{"0.0", "0.0", "0.0"};
+        }
         String[] strings = new String[3];
 
         int maxMark = allMarks.get(0);
@@ -145,42 +192,6 @@ public class TeacherService {
         return answers;
     }
 
-    // Создание нового теста с прикрепленным файлом
-    public void addTestWithFile(MultipartFile file, String title, String question,
-                                Module module) throws IOException {
-        Test test = new Test();
-
-        if (file != null && !file.getOriginalFilename().isEmpty()) {
-            File uploadDir = new File(uploadPath);
-
-            if (!uploadDir.exists()) {
-                uploadDir.mkdir();
-            }
-
-            String uuidFile = UUID.randomUUID().toString();
-            String resultFilename = uuidFile + "." + file.getOriginalFilename();
-
-            file.transferTo(new File(uploadPath + "/" + resultFilename));
-            test.setFilename(resultFilename);
-        }
-
-        Question question1 = new Question(question);
-        question1 = questionRepo.save(question1);
-        List<Question> list = new ArrayList<>();
-        list.add(question1);
-
-        test.setTitle(title);
-        test.setQuestions(list);
-        test.setModule(module);
-        test.setSections(0);
-        test.setGradingSystem(null);
-
-        testRepo.save(test);
-
-        module.getTests().add(test);
-        moduleRepo.save(module);
-    }
-
     // Выставление оценки за тест учителем
     public void putMark(Student student, Test test, int mark) {
         test.getStudentsMarks().put(student.getId(), mark);
@@ -215,6 +226,24 @@ public class TeacherService {
             question.setCorrectAnswer(newCorrectAnswer);
             questionRepo.save(question);
         }
+    }
+
+    // Отправка письма на почту студента
+    public void takeComments(Student student, String theme, String comments) {
+        mailSender.send(theme, student.getUsername(), comments);
+    }
+
+    public String teacherOrAdmin(Users user, Module module) {
+        Optional<Teacher> teacher = teacherRepo.findById(user.getId());
+        if (teacher.isPresent()) {
+            if (module.getEducationGroup().getTeachers().contains(teacher.get())) {
+                return "teacher";
+            } else {
+                return "teacher_admin";
+            }
+        }
+            return "teacher_admin";
+
     }
 
     // Обработка правильных ответов, пришедших с клиента

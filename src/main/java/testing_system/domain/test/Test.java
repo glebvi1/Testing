@@ -35,6 +35,8 @@ public class Test {
     // Прикрепленный файл от учителя
     private String filename;
 
+    private boolean type;
+
     // Long - id студента, String - файлы, идущие через пробел
     // Файлы, прикрепленные студентом
     @ElementCollection(fetch = FetchType.LAZY)
@@ -114,4 +116,11 @@ public class Test {
         this.studentsSolving = studentsSolving;
     }
 
+    public boolean isType() {
+        return type;
+    }
+
+    public void setType(boolean type) {
+        this.type = type;
+    }
 }

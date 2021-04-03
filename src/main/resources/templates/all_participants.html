@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>List of user</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+
+<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${role} == 'teacher_admin'"></header>
+<header th:insert="parts/teacher_header :: teacher_header" th:if="${role} == 'teacher'"></header>
+
+<h4>Участники группы</h4>
+
+<table class="table">
+    <tr>
+        <th scope="col">Имя</th>
+        <th scope="col">Почта</th>
+        <th scope="col">Роль</th>
+        <th scope="col">Успеваемость</th>
+    </tr>
+
+    <tr th:each="user, i : ${users}">
+        <td th:text="${user.getFullName()}" ></td>
+        <td th:text="${user.getUsername()}"></td>
+        <td th:if="${user.getStringRoles().contains('студент')}" th:text="Студент"></td>
+        <td th:if="${!user.getStringRoles().contains('студент')}" th:text="Учитель"></td>
+
+        <div th:if="${role} == 'teacher'">
+            <td th:text="${stat.get(i.index)}" th:if="${user.getStringRoles().contains('студент')}"></td>
+        </div>
+
+        <div th:if="${role} == 'teacher_admin'">
+            <div th:if="${user.getStringRoles().contains('студент')}">
+                <td class="text-success" th:if="${stat.get(i.index)} > 2.5" th:text="${stat.get(i.index)}"></td>
+                <td class="text-danger" th:if="${stat.get(i.index)} <= 2.5" th:text="${stat.get(i.index)}"></td>
+            </div>
+        </div>
+    </tr>
+</table>
+
+</body>
+</html>

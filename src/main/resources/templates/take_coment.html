@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>List of user</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+<script>
+    function send(t) {
+        if (confirm("Отправить письмо?"))
+            t.submit();
+    }
+</script>
+
+<header th:insert="parts/teacher_header :: teacher_header"></header>
+
+<h4>Оставить комментарий ученику [[${student.getFullName()}]]</h4>
+<form th:action="@{/educated/test/{id}/comments/{id1}(id=${test.getId()}, id1=${student.getId()})}" method="post" onsubmit="send(this);return false;">
+    <div class="form-group">
+        <div><label> Тема вопроса: <input th:value="${test.getTitle()}" type="text" name="theme" maxlength="300" placeholder="Введите тему вопроса:" class="form-control" required/> </label></div>
+        <p>Комментарий:</p>
+        <p><textarea th:name="comm" rows="12" cols="45" maxlength="5000" placeholder="Введите вопрос:" required></textarea></p>
+
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </div>
+</form>
+
+</body>
+</html>

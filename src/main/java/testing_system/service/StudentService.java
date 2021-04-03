@@ -104,7 +104,12 @@ public class StudentService {
 
     // Сохраняются файлы, прикрепленные учеником
     public void doTestWithFile(Test test, List<MultipartFile> files, Student student) throws IOException {
-        Map<Long, String> solving = new HashMap<>();
+        Map<Long, String> solving;
+        if (test.getStudentsSolving() != null) {
+            solving = test.getStudentsSolving();
+        } else {
+            solving = new HashMap<>();
+        }
         String sol = "";
 
         // Сохраняем в папку файлы
@@ -248,10 +253,12 @@ public class StudentService {
                 for (int i = 0; i < answersOptions.size(); i++) {
                     if (correctAnswers.get(i) && htmlAnswers.get(index).equals("on")) {
                         count++;
-                        htmlAnswers.remove(index + 1);
                     }
                     if (!correctAnswers.get(i) && htmlAnswers.get(index).equals("off")) {
                         count++;
+                    }
+                    if (htmlAnswers.get(index).equals("on")) {
+                        htmlAnswers.remove(index + 1);
                     }
                     index++;
                 }

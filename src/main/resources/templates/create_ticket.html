@@ -14,8 +14,8 @@
 
 <form method="get" th:action="@{/educated/module/{id}/add-ticket(id=${module.getId()})}">
     <div class="form-group mt-3">
-        <label>Количество разделов: <input type="number" name="countSections" placeholder="Кол-во разделов: " class="form-control" required/></label>
-        <label>Количество вопросов в разделе: <input type="number" name="countQuestions" placeholder="Кол-во вопросов: " class="form-control" required/></label>
+        <label>Количество КЭСов: <input type="number" name="countSections" placeholder="Кол-во КЭСов: " class="form-control" required/></label>
+        <label>Количество вопросов в КЭСе: <input type="number" name="countQuestions" placeholder="Кол-во вопросов: " class="form-control" required/></label>
     </div>
     <button type="submit" class="btn btn-primary mt-3">Сохранить</button>
 </form>
@@ -26,11 +26,11 @@
         <label>Название: <input type="text" name="title" placeholder="Название теста: " class="form-control" required/></label>
 
         <p><a class="btn btn-primary" data-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Разделы
+            КЭСы
         </a>
 
         <div th:each="number, index : ${sectionsArr}" class="collapse" id="collapseExample2">
-            <p class="text-primary">Раздел №[[${index.index + 1}]]</p>
+            <p class="text-primary">КЭС №[[${index.index + 1}]]</p>
             <div th:each="number, index : ${questionsArr}" class="forum-group mt-3">
                     <label>Вопрос №[[${number}]]<input  placeholder="Вопрос: " th:value="${questions}" th:name="questions" type="text" class="form-control" required/></label>
 

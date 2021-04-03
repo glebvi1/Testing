@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import testing_system.domain.group.EducationGroup;
 import testing_system.domain.group.Module;
 import testing_system.domain.people.Student;
+import testing_system.domain.people.Teacher;
 import testing_system.domain.people.Users;
 import testing_system.domain.people.Roles;
 import testing_system.domain.test.Question;
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,9 +51,6 @@ public class TeacherController {
     private StudentRepo studentRepo;
 
     private int sectionCount = 5;
-
-    @Value("${upload.path}")
-    private String uploadPath;
 
     // Группы, в которых пользователь является учителем
     @GetMapping
@@ -86,15 +85,21 @@ public class TeacherController {
 
         model.addAttribute("group", educationGroup);
         List<Users> list = new ArrayList<>();
+        List<Float> stat = new ArrayList<>();
         list.addAll(educationGroup.getStudents());
+
+        for (Student student : educationGroup.getStudents()) {
+            stat.add(
+                    Float.parseFloat(teacherService.statistics(
+                    new ArrayList<>(student.getAllMarks().values()))[2]));
+        }
+
         list.addAll(educationGroup.getTeachers());
-        model.addAttribute("usersList", list);
-        model.addAttribute("one", true);
 
-        model.addAttribute("some_admin", false);
-        model.addAttribute("teacher", true);
-
-        return "list_of_users";
+        model.addAttribute("stat", stat);
+        model.addAttribute("users", list);
+        model.addAttribute("role", auxiliaryService.getRole(user));
+        return "all_participants";
     }
 
     // Конкретная группа обучения
@@ -107,17 +112,12 @@ public class TeacherController {
         }
         String role = auxiliaryService.getRole(user);
 
-        if (role.equals("teacher")) {
-            model.addAttribute("role", "teacher");
-        } else if (user.getRoles().contains(Roles.TEACHER) && user.getRoles().contains(Roles.TEACHER_ADMIN)) {
-            boolean isGoodTeacher = educationGroup.getTeachers().contains(teacherRepo.findById(user.getId()).get());
-            if (isGoodTeacher) {
-                model.addAttribute("role", "teacher");
-            } else {
-                model.addAttribute("role", "teacher_admin");
-            }
-        }
-        else {
+
+        if (role.equals("teacher_admin")) {
+            model.addAttribute("role", role);
+        } else if (role.equals("teacher")) {
+            model.addAttribute("role", role);
+        } else {
             model.addAttribute("role", "student");
         }
         model.addAttribute("group", educationGroup);
@@ -140,7 +140,14 @@ public class TeacherController {
                 isGoodTeacher) {
             return "error";
         }
-        model.addAttribute("role", "teacher");
+
+        String role = auxiliaryService.getRole(user);
+
+        if (role.equals("teacher_admin")) {
+            model.addAttribute("role", role);
+        } else {
+            model.addAttribute("role", "teacher");
+        }
         model.addAttribute("groupId", educationGroup.getId());
 
         if (!teacherService.addModule(educationGroup, title)) {
@@ -163,15 +170,17 @@ public class TeacherController {
         if (!auxiliaryService.security(user, module.getEducationGroup())) {
             return "error";
         }
-        String role = auxiliaryService.getRole(user);
-        if (role.equals("teacher") || role.equals("teacher_admin")) {
-            model.addAttribute("role", "teacher");
-        } else if (role.equals("student")){
+
+        if (user.getRoles().contains(Roles.STUDENT)) {
             model.addAttribute("role", "student");
-            model.addAttribute("studentId", user.getId());
+        } else {
+            model.addAttribute("role", teacherService.teacherOrAdmin(user, module));
         }
+
         model.addAttribute("module", module);
         model.addAttribute("tests", module.getTests());
+
+        model.addAttribute("studentId", user.getId());
 
         return "module";
     }
@@ -339,7 +348,7 @@ public class TeacherController {
                 return "redirect:/educated/module/" + module.getId();
             }
         }
-        model.addAttribute("message", "" + module.getId());
+
         model.addAttribute("module", module);
 
         return "create_test_with_file";
@@ -351,8 +360,8 @@ public class TeacherController {
     public String addTestWithFile(@PathVariable(name = "id") Module module,
                                   Model model,
                                   @AuthenticationPrincipal Users user,
-                                  @RequestParam("file") MultipartFile file,
-                                  @RequestParam("title") String title,
+                                  @RequestParam(name = "file") MultipartFile file,
+                                  @RequestParam(name = "title") String title,
                                   @RequestParam String question) throws IOException {
 
         if (!auxiliaryService.security(user, module.getEducationGroup())) {
@@ -367,7 +376,6 @@ public class TeacherController {
         }
 
         model.addAttribute("module", module);
-        model.addAttribute("message", "" + module.getId());
 
         if (contains(module, title)) {
             model.addAttribute("message", "Тест с таким названием уже существует.");
@@ -417,9 +425,12 @@ public class TeacherController {
         }
         model.addAttribute("module", test.getModule());
 
+        model.addAttribute("role", teacherService.teacherOrAdmin(user, test.getModule()));
+
         return "statistics";
     }
 
+    // Статистика выполнения теста с файлом
     @GetMapping("/test/{id}/statistics-with-files")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String statisticsWithFiles(Model model,
@@ -456,9 +467,12 @@ public class TeacherController {
         }
         model.addAttribute("module", test.getModule());
 
+        model.addAttribute("role", teacherService.teacherOrAdmin(user, test.getModule()));
+
         return "statistics_with_files";
     }
 
+    // Проверка решения
     @GetMapping("/test/{id}/statistics-with-files/{id1}")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String checkSolving(Model model,
@@ -478,6 +492,7 @@ public class TeacherController {
         return "check";
     }
 
+    // Выставление оценки
     @PostMapping("/test/{id}/statistics-with-files/{id1}")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'TEACHER_ADMIN')")
     public String checkSolving(Model model,
@@ -502,6 +517,29 @@ public class TeacherController {
 
         teacherService.putMark(student, test, mark);
 
+        return "redirect:/educated/test/" + test.getId() + "/statistics-with-files";
+    }
+
+    @GetMapping("/test/{id}/comments/{id1}")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public String takeComments(Model model,
+                               @PathVariable(name = "id") Test test,
+                               @PathVariable(name = "id1") Student student) {
+        model.addAttribute("test", test);
+        model.addAttribute("student", student);
+        return "take_coment";
+    }
+
+    @PostMapping("/test/{id}/comments/{id1}")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public String takeComments(@PathVariable(name = "id1") Student student,
+                               @PathVariable(name = "id") Test test,
+                               @RequestParam(name = "comm") String comments,
+                               @RequestParam(name = "theme") String theme) {
+        teacherService.takeComments(student, theme, comments);
+        if (!test.isType()) {
+            return "redirect:/educated/test/" + test.getId() + "/statistics";
+        }
         return "redirect:/educated/test/" + test.getId() + "/statistics-with-files";
     }
 

@@ -7,6 +7,7 @@
 </head>
 <body>
 
+<header th:insert="parts/teacher_admin_header :: teacher_admin_header" th:if="${role} == 'teacher_admin'"></header>
 <header th:insert="parts/teacher_header :: teacher_header" th:if="${role} == 'teacher'"></header>
 <header th:insert="parts/student_header :: student_header" th:if="${role} == 'student'"></header>
 
@@ -16,9 +17,9 @@
     <div class="card" th:each="test : ${tests}">
         <div class="card-body" >
             <h4 class="card-title" th:text="${test.getTitle()}"></h4>
-            <div th:if="${role} == 'teacher'">
-                <a th:href="@{/educated/test/{id}/statistics(id=${test.getId()})}" th:if="${test.getFilename() == null}" class="btn btn-primary">Посмотреть</a>
-                <a th:href="@{/educated/test/{id}/statistics-with-files(id=${test.getId()})}" th:if="${test.getFilename() != null}" class="btn btn-primary">Посмотреть</a>
+            <div th:if="${role != 'student'}">
+                <a th:href="@{/educated/test/{id}/statistics(id=${test.getId()})}" th:if="${!test.isType()}" class="btn btn-primary">Посмотреть</a>
+                <a th:href="@{/educated/test/{id}/statistics-with-files(id=${test.getId()})}" th:if="${test.isType()}" class="btn btn-primary">Посмотреть</a>
             </div>
 
             <div th:if="${role} == 'student'">

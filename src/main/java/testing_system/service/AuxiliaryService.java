@@ -10,9 +10,8 @@ import java.util.Set;
 @Service
 public class AuxiliaryService {
 
-    // Защита от перемещения учителей в группы, в которых они не ведут занятия
+    // Защита от перемещения учителей / студентов в группы, в которых они не ведут занятия / учатся
     public boolean security(Users user, EducationGroup educationGroup) {
-
         for (Users u : educationGroup.getStudents()) {
             if (u.getId() == user.getId()) {
                 return true;

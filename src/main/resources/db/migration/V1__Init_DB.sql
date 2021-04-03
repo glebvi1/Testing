@@ -86,6 +86,7 @@ create table test
     title varchar(255),
     module_id bigint,
     filename varchar(255),
+    type bit,
     primary key (id));
 
 create table test_grading_system

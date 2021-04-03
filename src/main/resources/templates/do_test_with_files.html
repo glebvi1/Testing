@@ -12,7 +12,7 @@
 <h4>Выполнить самостоятельную работу</h4>
 <p>[[${message}]]</p>
 
-<div class="p-3 mb-2 bg-light text-dark" th:if="${file}">
+<div class="p-3 mb-2 bg-light text-dark">
     <h5>Вопрос:</h5><h5 class="text-secondary">[[${question}]]</h5>
 
     <div th:if="${test.getFilename() != null}">
@@ -23,7 +23,6 @@
 <form method="post" th:action="@{/student/test/{id}(id=${test.getId()})}" enctype="multipart/form-data">
     <div class="form-group mt-3">
         <div class="custom-file">
-            <input type="hidden" name="1000000" value="1000000">
             <input type="file" class="custom-file-input" name="files" id="customFile" accept="image/*,image/jpeg" required multiple>
             <label class="custom-file-label" for="customFile">Прикрепить файл</label>
         </div>
