@@ -18,10 +18,11 @@
 <p>[[${message}]]</p>
 
 <form th:action="@{/system-admin/edit/{id}(id=${user.getId()})}" method="post">
-    <div class="form-group">
-        <div th:each="role : ${roles}">
-            <label><input type="checkbox" th:text="${role}" th:name="${role}" th:checked="${user.getRoles().contains(role)}"/></label>
-        </div>
+    <div class="form-check" th:each="role : ${roles}">
+            <label><input type="checkbox" th:text="  Системный-администратор  " th:name="${role}" th:checked="${user.getRoles().contains(role)}" th:if="${role} == ${sys}" class="form-check-label" /></label>
+            <label><input type="checkbox" th:text="  Завуч  " th:name="${role}" th:checked="${user.getRoles().contains(role)}" th:if="${role} == ${admin}" class="form-check-label" /></label>
+            <label><input type="checkbox" th:text="  Учитель  " th:name="${role}" th:checked="${user.getRoles().contains(role)}" th:if="${role} == ${teacher}" class="form-check-label" /></label>
+            <label><input type="checkbox" th:text="  Учащийся  " th:name="${role}" th:checked="${user.getRoles().contains(role)}" th:if="${role} == ${student}" class="form-check-label" /></label>
     </div>
     <button type="submit" class="btn btn-primary">Сохранить</button>
 </form>

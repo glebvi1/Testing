@@ -110,7 +110,7 @@ public class StudentController {
             for (MultipartFile f : files) {
                 count += f.getSize();
             }
-            if (count >= 1000000) {
+            if (count >= 10000000) {
                 return "redirect:/student/test/" + test.getId();
             }
         }

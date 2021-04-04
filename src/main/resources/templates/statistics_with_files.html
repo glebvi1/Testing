@@ -44,7 +44,7 @@
     <h5>Вопрос:</h5><h5 class="text-secondary">[[${question}]]</h5>
 
     <div th:if="${test.getFilename() != null}">
-        <img th:src="@{/img/{filename}(filename = ${test.getFilename()})}" height="1100" width="1100">
+        <img th:src="@{/img/{filename}(filename = ${test.getFilename()})}" height="600" width="600">
     </div>
 
 </div>

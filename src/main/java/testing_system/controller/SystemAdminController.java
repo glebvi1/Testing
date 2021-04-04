@@ -34,6 +34,12 @@ public class SystemAdminController {
                        @PathVariable Long id) {
         model.addAttribute("user", userRepo.findById(id).get());
         model.addAttribute("roles", Roles.values());
+
+        model.addAttribute("sys", Roles.SYSTEM_ADMIN);
+        model.addAttribute("admin", Roles.TEACHER_ADMIN);
+        model.addAttribute("teacher", Roles.TEACHER);
+        model.addAttribute("student", Roles.STUDENT);
+
         return "edit_role";
     }
 

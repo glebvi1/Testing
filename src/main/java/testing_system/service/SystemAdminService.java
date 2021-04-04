@@ -41,8 +41,10 @@ public class SystemAdminService {
             for (EducationGroup educationGroup : student.getGroups()) {
                 // Удаление оценок, хранящихся в тестах
                 educationGroup.getModules().forEach(module ->
-                        module.getTests().forEach(test ->
-                                test.getStudentsMarks().remove(user.getId())));
+                        module.getTests().forEach(test -> {
+                            test.getStudentsMarks().remove(user.getId());
+                            test.getStudentsSolving().remove(user.getId());
+                        }));
 
                 // Удаление студента из группы
                 educationGroup.getStudents().remove(student);
@@ -56,7 +58,7 @@ public class SystemAdminService {
 
             // Удаление студента из группы
             for (EducationGroup educationGroup : teacher.getGroups()) {
-                educationGroup.getStudents().remove(teacher);
+                educationGroup.getTeachers().remove(teacher);
                 educationGroupRepo.save(educationGroup);
             }
 

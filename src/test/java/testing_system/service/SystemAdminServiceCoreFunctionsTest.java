@@ -143,6 +143,7 @@ public class SystemAdminServiceCoreFunctionsTest {
 
     }
 
+/*
     @Test
     public void updateEducationGroupNoStudentFailTest() {
         Student student = getStudent("student@student.student");
@@ -214,6 +215,7 @@ public class SystemAdminServiceCoreFunctionsTest {
 
 
     }
+*/
 
     @Test
     public void answerTheQuestion() {
