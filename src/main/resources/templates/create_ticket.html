@@ -31,12 +31,27 @@
 
         <div th:each="number, index : ${sectionsArr}" class="collapse" id="collapseExample2">
             <p class="text-primary">КЭС №[[${index.index + 1}]]</p>
-            <div th:each="number, index : ${questionsArr}" class="forum-group mt-3">
-                    <label>Вопрос №[[${number}]]<input  placeholder="Вопрос: " th:value="${questions}" th:name="questions" type="text" class="form-control" required/></label>
+            <label>Название КЭСа:
+                <input  placeholder="Название КЭСа: "
+                        th:name="titles"
+                        type="text"
+                        class="form-control" required/>
+            </label>
+
+        <div th:each="number, index : ${questionsArr}" class="forum-group mt-3">
+                    <label>Вопрос №[[${number}]]<input
+                            placeholder="Вопрос: "
+                            th:name="questions"
+                            type="text"
+                            class="form-control" required/>
+                    </label>
 
                     <div th:each="n : ${#numbers.sequence(1, 6)}">
 
-                        <label>Вариант ответа №[[${n}]] <input type="text" th:value="${answers}" th:name="answers" th:required="${n} == 1" /></label>
+                        <label>Вариант ответа №[[${n}]] <input
+                                type="text"
+                                th:name="answers"
+                                th:required="${n} == 1" /></label>
 
                         <input type="checkbox" th:name="isCorrect" value="on" th:checked="${n} == 1" th:required="${n} == 1">Правильный
                         <input type="hidden" th:name="isCorrect" value="off">

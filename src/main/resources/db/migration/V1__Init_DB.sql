@@ -133,6 +133,10 @@ create table test_students_marks
      students_marks_key bigint not null,
      primary key (test_id, students_marks_key));
 
+create table test_section_title
+    (test_id bigint not null,
+     section_title varchar(255));
+
 create table users
     (id bigint not null,
     activated_code varchar(255),
@@ -260,6 +264,11 @@ alter table test_questions
 
 alter table test_students_marks
     add constraint FK5f8hmblsrtnqax7r3w65hccvi
+        foreign key (test_id)
+            references test (id);
+
+alter table test_section_title
+    add constraint FKl2p2c8i3ai3gfyb2fjtxg8hf
         foreign key (test_id)
             references test (id);
 

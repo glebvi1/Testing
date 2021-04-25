@@ -45,7 +45,8 @@ public class TeacherService {
 
     // Создание ногово теста
     public void addTest(String title, List<String> htmlQuestions, List<String> htmlAnswersOptions,
-                        List<String> htmlCorrectAnswers, Module module, List<Integer> marks, int section) {
+                        List<String> htmlCorrectAnswers, Module module, List<Integer> marks, int section,
+                        List<String> htmlTitleSection) {
         List<Boolean> correctAnswers = parseHtmlCheckbox(htmlCorrectAnswers);
         List<Question> questions = parseHtmlQuestions(htmlQuestions, correctAnswers, htmlAnswersOptions);
 
@@ -67,6 +68,7 @@ public class TeacherService {
         test.setModule(module);
         test.setSections(section);
         test.setIsFile(false);
+        test.setSectionTitle(htmlTitleSection);
         testRepo.save(test);
 
         module.getTests().add(test);

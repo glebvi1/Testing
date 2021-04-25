@@ -45,6 +45,10 @@ public class Test {
     @ElementCollection(fetch = FetchType.LAZY)
     private Map<Long, String> studentsSolving;
 
+    // Название разделов. Только для КР
+    @ElementCollection(fetch = FetchType.LAZY)
+    private List<String> sectionTitle;
+
     public Test() {}
 
     public long getId() {
@@ -141,5 +145,13 @@ public class Test {
 
     public void setControl(boolean control) {
         isControl = control;
+    }
+
+    public List<String> getSectionTitle() {
+        return sectionTitle;
+    }
+
+    public void setSectionTitle(List<String> sectionTitle) {
+        this.sectionTitle = sectionTitle;
     }
 }

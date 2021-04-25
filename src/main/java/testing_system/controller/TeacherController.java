@@ -239,15 +239,15 @@ public class TeacherController {
 
         if (contains(module, title)) {
             model.addAttribute("message", "Тест с таким названием уже существует.");
-            model.addAttribute("questions", htmlQuestions);
+/*            model.addAttribute("questions", htmlQuestions);
             model.addAttribute("answers", htmlAnswersOptions);
             model.addAttribute("isCorrect", htmlCorrectAnswers);
-            model.addAttribute("marks", marks);
+            model.addAttribute("marks", marks);*/
             return "create_test";
         }
 
         teacherService.addTest(title, htmlQuestions, htmlAnswersOptions, htmlCorrectAnswers,
-                module, marks, 0);
+                module, marks, 0, new ArrayList<>());
 
         return "redirect:/educated/module/" + module.getId();
     }
@@ -302,8 +302,9 @@ public class TeacherController {
                             @RequestParam(name = "questions") List<String> htmlQuestions,
                             @RequestParam(name = "answers") List<String> htmlAnswersOptions,
                             @RequestParam(name = "isCorrect") List<String> htmlCorrectAnswers,
-                            @PathVariable(name = "id") Module module,
                             @RequestParam(name = "marks") List<Integer> marks,
+                            @RequestParam(name = "titles") List<String> htmlTitleSection,
+                            @PathVariable(name = "id") Module module,
                             Model model,
                             @AuthenticationPrincipal Users user) {
 
@@ -321,15 +322,15 @@ public class TeacherController {
 
         if (contains(module, title)) {
             model.addAttribute("message", "Тест с таким названием уже существует.");
-            model.addAttribute("questions", htmlQuestions);
+            /*model.addAttribute("questions", htmlQuestions);
             model.addAttribute("answers", htmlAnswersOptions);
             model.addAttribute("isCorrect", htmlCorrectAnswers);
-            model.addAttribute("marks", marks);
+            model.addAttribute("marks", marks);*/
             return "create_ticket";
         }
 
         teacherService.addTest(title, htmlQuestions, htmlAnswersOptions, htmlCorrectAnswers,
-                module, marks, sectionCount);
+                module, marks, sectionCount, htmlTitleSection);
 
         return "redirect:/educated/module/" + module.getId();
     }

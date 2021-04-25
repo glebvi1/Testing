@@ -87,6 +87,7 @@ public class StatisticsController {
         model.addAttribute("module", test.getModule());
 
         model.addAttribute("role", teacherService.teacherOrAdmin(user, test.getModule()));
+        model.addAttribute("titles", test.getSectionTitle());
 
         return "statistics";
     }

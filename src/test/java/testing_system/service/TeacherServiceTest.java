@@ -92,8 +92,8 @@ public class TeacherServiceTest {
         List<Integer> marks = new ArrayList<>(Arrays.asList(100, 80, 60));
 
         teacherService.addTest(
-                "Test", htmlQ, htmlAO, htmlCA, module, marks, 0
-        );
+                "Test", htmlQ, htmlAO, htmlCA, module, marks, 0,
+                new ArrayList<>());
 
         Mockito.verify(questionRepo, Mockito.times(14))
                 .save(ArgumentMatchers.any(Question.class));
@@ -142,8 +142,8 @@ public class TeacherServiceTest {
         List<Integer> marks = new ArrayList<>(Arrays.asList(100, 80, 60));
 
         teacherService.addTest(
-                "Test", htmlQ, htmlAO, htmlCA, module, marks, 5
-        );
+                "Test", htmlQ, htmlAO, htmlCA, module, marks, 5,
+                new ArrayList<>());
 
         Mockito.verify(questionRepo, Mockito.times(20))
                 .save(ArgumentMatchers.any(Question.class));
@@ -189,8 +189,8 @@ public class TeacherServiceTest {
         List<Integer> marks = new ArrayList<>(Arrays.asList(100, 80, 60));
 
         teacherService.addTest(
-                "Test", htmlQ, htmlAO, htmlCA, module, marks, 2
-        );
+                "Test", htmlQ, htmlAO, htmlCA, module, marks, 2,
+                new ArrayList<>());
 
         Mockito.verify(questionRepo, Mockito.times(20))
                 .save(ArgumentMatchers.any(Question.class));
