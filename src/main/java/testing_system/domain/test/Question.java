@@ -7,6 +7,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table
@@ -24,7 +25,17 @@ public class Question {
     @Fetch(value = FetchMode.SUBSELECT)
     private List<Boolean> correctAnswer;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<StudentsAnswers> studentsAnswers;
+
     public Question() {}
+
+    public Question(Question question) {
+        this.question = question.getQuestion();
+        this.answersOptions = question.getAnswersOptions();
+        this.studentsAnswers = question.getStudentsAnswers();
+        this.correctAnswer = question.getCorrectAnswer();
+    }
 
     public Question(String question) {
         this.question = question;
@@ -60,6 +71,14 @@ public class Question {
 
     public void setCorrectAnswer(List<Boolean> correctAnswer) {
         this.correctAnswer = correctAnswer;
+    }
+
+    public List<StudentsAnswers> getStudentsAnswers() {
+        return studentsAnswers;
+    }
+
+    public void setStudentsAnswers(List<StudentsAnswers> studentsAnswers) {
+        this.studentsAnswers = studentsAnswers;
     }
 
     @Override

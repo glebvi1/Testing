@@ -18,13 +18,36 @@
         <div class="card-body" >
             <h4 class="card-title" th:text="${test.getTitle()}"></h4>
             <div th:if="${role != 'student'}">
-                <a th:href="@{/educated/test/{id}/statistics(id=${test.getId()})}" th:if="${!test.isType()}" class="btn btn-primary">Посмотреть</a>
-                <a th:href="@{/educated/test/{id}/statistics-with-files(id=${test.getId()})}" th:if="${test.isType()}" class="btn btn-primary">Посмотреть</a>
+                <a th:href="@{/educated/test/{id}/statistics(id=${test.getId()})}" th:if="${!test.isIsFile()}" class="btn btn-primary">Посмотреть</a>
+                <a th:href="@{/educated/test/{id}/statistics-with-files(id=${test.getId()})}" th:if="${test.isIsFile()}" class="btn btn-primary">Посмотреть</a>
             </div>
 
             <div th:if="${role} == 'student'">
-                <a th:href="@{/student/test/{id}(id=${test.getId()})}" th:if="${!test.getStudentsMarks().containsKey(studentId)}" class="btn btn-primary">Посмотреть</a>
-                <h6 th:text="${test.getStudentsMarks().get(studentId)}" th:if="${test.getStudentsMarks().containsKey(studentId)}" class="text-primary"></h6>
+
+                <div th:if="${test.getSections() == 0}">
+                    <a th:href="@{/student/test/{id}(id=${test.getId()})}"
+                       th:if="${!test.getStudentsMarks().containsKey(studentId)}"
+                       class="btn btn-primary">Решить
+                    </a>
+
+                    <a th:href="@{/educated/test/{id}/answers/{id1}(id=${test.getId()}, id1=${user.getId()})}"
+                       th:if="${test.getStudentsMarks().containsKey(studentId)}"
+                       class="btn btn-primary">Результат
+                    </a>
+                </div>
+
+                <div th:if="${test.getSections() != 0}">
+                    <a th:href="@{/student/test/{id}(id=${test.getId()})}"
+                       th:if="${!module.getControlWork().containsKey(studentId)}"
+                       class="btn btn-primary">Решить
+                    </a>
+
+                    <a th:href="@{/educated/test/{id}/answers/{id1}(id=${module.getControlWork().get(studentId)}, id1=${user.getId()})}"
+                       th:if="${module.getControlWork().containsKey(studentId)}"
+                       class="btn btn-primary">Результат
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>

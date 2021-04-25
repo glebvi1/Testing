@@ -103,7 +103,10 @@ public class StudentServiceTest {
         testing_system.domain.test.Test test = getTest(5);
         test.setQuestions(getQuestions(25));
 
-        testing_system.domain.test.Test newTest = studentService.generateTestFromTicket(test);
+        Student student = new Student();
+        student.setId(1);
+
+        testing_system.domain.test.Test newTest = studentService.generateTestFromTicket(test, student);
         boolean checkQuestion = true;
         int index = 0;
         for (int i = 0; i < 25; i += 5) {

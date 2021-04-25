@@ -66,7 +66,7 @@ public class TeacherService {
         test.setGradingSystem(gradingSystem);
         test.setModule(module);
         test.setSections(section);
-        test.setType(false);
+        test.setIsFile(false);
         testRepo.save(test);
 
         module.getTests().add(test);
@@ -102,7 +102,7 @@ public class TeacherService {
         test.setModule(module);
         test.setSections(0);
         test.setGradingSystem(null);
-        test.setType(true);
+        test.setIsFile(true);
 
         testRepo.save(test);
 

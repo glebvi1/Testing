@@ -8,8 +8,11 @@ import testing_system.domain.group.EducationGroup;
 import testing_system.domain.people.Student;
 import testing_system.domain.people.Teacher;
 import testing_system.domain.test.Question;
+import testing_system.domain.test.StudentsAnswers;
 import testing_system.domain.test.Test;
+import testing_system.repos.group.ModuleRepo;
 import testing_system.repos.people.StudentRepo;
+import testing_system.repos.test.StudentsAnswersRepo;
 import testing_system.repos.test.TestRepo;
 
 import java.io.File;
@@ -24,13 +27,18 @@ public class StudentService {
     private TestRepo testRepo;
     @Autowired
     private MailSender mailSender;
+    @Autowired
+    private StudentsAnswersRepo studentsAnswersRepo;
+    @Autowired
+    private ModuleRepo moduleRepo;
 
     @Value("${upload.path}")
     private String uploadPath;
 
     // Выставляется оценка за тест, отправляется письмо студентам и учителям
     public int doTest(Test test, List<String> htmlAnswers, Student student) {
-        int countOfCorrectAnswers = parseHtml(test.getQuestions(), htmlAnswers);
+        int countOfCorrectAnswers = parseHtml(test.getQuestions(), htmlAnswers,
+                student);
 
         Map<Integer, Integer> marks = test.getGradingSystem();
 
@@ -61,12 +69,16 @@ public class StudentService {
     }
 
     // Выставляется оценка за билет, отправляется письмо студентам и учителям
-    public int doTicket(Test test, Test ticket, List<String> htmlAnswers,
+    public int doTicket(Test ticket, List<String> htmlAnswers,
                         Student student) {
-        // Кол-во правильных ответов
-        int countOfCorrectAnswers = parseHtml(test.getQuestions(), htmlAnswers);
 
-        // Система оценивания. Берем из БИЛЕТА!!!
+        Test test = testRepo.findById(ticket.getModule().getControlWork().get(student.getId())).get();
+
+        // Кол-во правильных ответов
+        int countOfCorrectAnswers = parseHtml(test.getQuestions(), htmlAnswers,
+                student);
+
+        // Система оценивания.
         Map<Integer, Integer> marks = ticket.getGradingSystem();
 
         // Оценка за тест
@@ -74,6 +86,7 @@ public class StudentService {
 
         // Сохранение оценки в БД
         Map<Long, Integer> studentsMarks = ticket.getStudentsMarks();
+        Map<Long, Integer> studentsMarks1 = new HashMap<>();
         Map<Long, Integer> allMarks = student.getAllMarks();
 
         if (studentsMarks == null) {
@@ -83,10 +96,15 @@ public class StudentService {
             allMarks = new HashMap<>();
         }
 
-        // Сохранение БИЛЕТА, а не конкретного теста
+        // Сохранение билета
         studentsMarks.put(student.getId(), mark);
         ticket.setStudentsMarks(studentsMarks);
         testRepo.save(ticket);
+
+        // Сохранение конкретного теста
+        studentsMarks1.put(student.getId(), mark);
+        test.setStudentsMarks(studentsMarks1);
+        testRepo.save(test);
 
         // Созранение пользователя с оценкой
         allMarks.put(test.getId(), mark);
@@ -98,8 +116,8 @@ public class StudentService {
 
         // Отправка письма учителю (только в то случае, если все студенты прошли данный тест)
         sendToTeacher(ticket);
-        return mark;
 
+        return mark;
     }
 
     // Сохраняются файлы, прикрепленные учеником
@@ -134,12 +152,16 @@ public class StudentService {
     }
 
     // Состовляем из билета тест (рандомно выбираем вопросы из разделов)
-    public Test generateTestFromTicket(Test test) {
+    public Test generateTestFromTicket(Test test, Student student) {
         Test newTest = new Test();
         newTest.setQuestions(new ArrayList<Question>());
         newTest.setSections(test.getSections());
         newTest.setTitle(test.getTitle());
-        newTest.setId(test.getId());
+        newTest.setModule(test.getModule());
+        newTest.setGradingSystem(new HashMap<>(test.getGradingSystem()));
+        newTest.setSections(0);
+        newTest.setIsFile(false);
+        newTest.setControl(true);
 
         int n = test.getQuestions().size();
         int section = n / test.getSections();
@@ -153,8 +175,21 @@ public class StudentService {
 
             int rnd = section - 1;
             int randomQ = (int)(Math.random() * ++rnd);
-            newTest.getQuestions().add(tempQuestions.get(randomQ));
+
+            Question newQ = new Question(tempQuestions.get(randomQ));
+            newQ.setCorrectAnswer(new ArrayList<>(tempQuestions.get(randomQ).getCorrectAnswer()));
+            newQ.setAnswersOptions(new ArrayList<>(tempQuestions.get(randomQ).getAnswersOptions()));
+            newQ.setStudentsAnswers(new ArrayList<>());
+            newTest.getQuestions().add(newQ);
         }
+
+        testRepo.save(newTest);
+        if (newTest.getModule().getControlWork() == null) {
+            newTest.getModule().setControlWork(new HashMap<>());
+        }
+
+        newTest.getModule().getControlWork().put(student.getId(), newTest.getId());
+        moduleRepo.save(newTest.getModule());
 
         return newTest;
     }
@@ -177,8 +212,17 @@ public class StudentService {
                     ao.add(answer);
                 }
             }
-
             question.setAnswersOptions(ao);
+        }
+
+        for (Question question : questions) {
+            List<StudentsAnswers> sa = new ArrayList<>();
+            for (StudentsAnswers studentsAnswers : question.getStudentsAnswers()) {
+                if (!sa.contains(studentsAnswers)) {
+                    sa.add(studentsAnswers);
+                }
+            }
+            question.setStudentsAnswers(sa);
         }
         return news;
     }
@@ -236,20 +280,31 @@ public class StudentService {
 
     // Парсинг html (данных, полученных с клиента)
     // Подсчет правильных ответов
-    private int parseHtml(List<Question> questions, List<String> htmlAnswers) {
+    private int parseHtml(List<Question> questions, List<String> htmlAnswers,
+                          Student student) {
         int countOfCorrectAnswers = 0;
         int index = 0;
 
         for (Question question : questions) {
             List<String> answersOptions = question.getAnswersOptions();
+            StudentsAnswers answers = new StudentsAnswers();
+            answers.setStudent(student);
+            answers.setQuestion(question);
+
             if (answersOptions.size() == 1) {
+                answers.setStudentsAnswers(new ArrayList<>(Collections.singleton(htmlAnswers.get(index))));
                 if (answersOptions.get(0).equals(htmlAnswers.get(index))) {
                     countOfCorrectAnswers++;
+                    answers.setRight(true);
+                } else {
+                    answers.setRight(false);
                 }
                 index++;
             } else {
                 List<Boolean> correctAnswers = question.getCorrectAnswer();
                 int count = 0;
+                List<String> ans = new ArrayList<>();
+
                 for (int i = 0; i < answersOptions.size(); i++) {
                     if (correctAnswers.get(i) && htmlAnswers.get(index).equals("on")) {
                         count++;
@@ -258,14 +313,28 @@ public class StudentService {
                         count++;
                     }
                     if (htmlAnswers.get(index).equals("on")) {
+                        ans.add(answersOptions.get(i));
                         htmlAnswers.remove(index + 1);
                     }
                     index++;
                 }
+
+                answers.setStudentsAnswers(ans);
                 if (count == answersOptions.size()) {
                     countOfCorrectAnswers++;
+                    answers.setRight(true);
+                } else {
+                    answers.setRight(false);
                 }
             }
+
+            if (question.getStudentsAnswers() != null) {
+                question.getStudentsAnswers().add(answers);
+            } else {
+                question.setStudentsAnswers(new ArrayList<>());
+                question.getStudentsAnswers().add(answers);
+            }
+            studentsAnswersRepo.save(answers);
         }
 
         return countOfCorrectAnswers;

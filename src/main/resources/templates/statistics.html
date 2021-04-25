@@ -23,9 +23,10 @@
         <th scope="col">Почта</th>
         <th scope="col">Оценка</th>
         <th scope="col" th:if="${role} == 'teacher'">Оствить комментарий</th>
+        <th scope="col" th:if="${role} == 'teacher'">Просмотреть работу</th>
     </tr>
     <tr th:each="user, i : ${users}">
-        <td th:text="${user.getFullName()}" ></td>
+        <td th:text="${user.getFullName()}"></td>
         <td th:text="${user.getUsername()}"></td>
         <td th:text="${allMarks.get(i.index)}"></td>
 
@@ -33,6 +34,18 @@
                 th:href="@{/educated/test/{id}/comments/{id1}(id=${test.getId()}, id1=${user.getId()})}"
                 class="btn btn-primary" th:if="${role == 'teacher'}">Написать
         </a></div></td>
+
+        <div th:if="${role == 'teacher'}">
+            <td><div><a
+                    th:href="@{/educated/test/{id}/answers/{id1}(id=${test.getModule().getControlWork().get(user.getId())}, id1=${user.getId()})}"
+                    class="btn btn-primary" th:if="${test.getSections() != 0}">Посмотреть
+            </a></div></td>
+
+            <td><div><a
+                    th:href="@{/educated/test/{id}/answers/{id1}(id=${test.getId()}, id1=${user.getId()})}"
+                    class="btn btn-primary" th:if="${test.getSections() == 0}">Посмотреть
+            </a></div></td>
+        </div>
     </tr>
 </table>
 

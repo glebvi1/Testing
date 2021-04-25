@@ -5,7 +5,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import testing_system.domain.people.Student;
@@ -23,9 +22,6 @@ import java.util.List;
 @RequestMapping("/student")
 @PreAuthorize("hasAuthority('STUDENT')")
 public class StudentController {
-
-    private Test generatedTestFromTicket = null;
-
     @Autowired
     private StudentService studentService;
     @Autowired
@@ -64,27 +60,35 @@ public class StudentController {
                          Model model,
                          @AuthenticationPrincipal Student student) {
         Test test = testRepo.findById(id).get();
-        if (test.getStudentsMarks().containsKey(student.getId())) {
+        if (test.getStudentsMarks().containsKey(student.getId())
+                || (test.getModule().getControlWork().containsKey(student.getId()) && test.getSections() != 0)) {
             return "redirect:/educated/module/" + test.getModule().getId();
         }
 
         List<Question> questions = studentService.initTest(test);
 
-        if (test.isType()) {
+        // Тест с прикрепленным файлом
+        if (test.isIsFile()) {
             model.addAttribute("question", questions.get(0).getQuestion());
             model.addAttribute("test", test);
             model.addAttribute("file", true);
             return "do_test_with_files";
+        // Обычный тест
         } else if (test.getSections() == 0) {
             model.addAttribute("questions", questions);
             model.addAttribute("test", test);
-        } else if (generatedTestFromTicket == null || generatedTestFromTicket.getId() != test.getId()){
-            generatedTestFromTicket = studentService.generateTestFromTicket(test);
-            model.addAttribute("test", generatedTestFromTicket);
-            model.addAttribute("questions", generatedTestFromTicket.getQuestions());
+        // Контрольная работа, генерируется первый раз
+        } else if (!test.getModule().getControlWork().containsKey(student.getId())) {
+            Test generatedTest = studentService.generateTestFromTicket(test, student);
+            model.addAttribute("test", generatedTest);
+            model.addAttribute("questions", generatedTest.getQuestions());
+        // Котрольная работа, уже была сгенерированна
         } else {
-            model.addAttribute("test", generatedTestFromTicket);
-            model.addAttribute("questions", generatedTestFromTicket.getQuestions());
+            Long testId = test.getModule().getControlWork().get(student.getId());
+            Test generatedTest = testRepo.findById(testId).get();
+            studentService.initTest(generatedTest);
+            model.addAttribute("test", generatedTest);
+            model.addAttribute("questions", generatedTest.getQuestions());
         }
 
         model.addAttribute("isDone", false);
@@ -94,13 +98,11 @@ public class StudentController {
 
     // Отпрвка выбранных ответов, выставление оценки
     @PostMapping("/test/{id}")
-    public String doTest(@PathVariable(name = "id") long id,
+    public String doTest(@PathVariable(name = "id") Test test,
                          @RequestParam(name = "answers", required = false) List<String> htmlAnswers,
                          Model model,
                          @AuthenticationPrincipal Student student,
                          @RequestParam(name = "files", required = false) List<MultipartFile> files) throws IOException {
-        Test test = testRepo.findById(id).get();
-
         if (htmlAnswers == null && files == null) {
             return "redirect:/student/test/" + test.getId();
         }
@@ -117,15 +119,14 @@ public class StudentController {
 
         model.addAttribute("test", test);
         int mark = 0;
-        if (test.isType()) {
+        if (test.isIsFile()) {
             studentService.doTestWithFile(test, files, student);
-        } else if (generatedTestFromTicket == null) {
+        } else if (test.isControl()) {
             studentService.initTest(test);
-            mark = studentService.doTest(test, htmlAnswers, student);
+            mark = studentService.doTicket(test, htmlAnswers, student);
         } else {
             studentService.initTest(test);
-            mark = studentService.doTicket(generatedTestFromTicket, test, htmlAnswers, student);
-            generatedTestFromTicket = null;
+            mark = studentService.doTest(test, htmlAnswers, student);
         }
         model.addAttribute("mark", mark);
         model.addAttribute("isDone", true);

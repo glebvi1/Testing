@@ -3,6 +3,7 @@ package testing_system.domain.group;
 import testing_system.domain.test.Test;
 
 import javax.persistence.*;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -17,6 +18,9 @@ public class Module {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @OrderBy("title asc")
     private Set<Test> tests;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    private Map<Long, Long> controlWork;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private EducationGroup educationGroup;
@@ -57,5 +61,13 @@ public class Module {
 
     public void setEducationGroup(EducationGroup educationGroup) {
         this.educationGroup = educationGroup;
+    }
+
+    public Map<Long, Long> getControlWork() {
+        return controlWork;
+    }
+
+    public void setControlWork(Map<Long, Long> controlWork) {
+        this.controlWork = controlWork;
     }
 }

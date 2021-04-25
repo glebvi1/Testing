@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous" />
+</head>
+<body>
+
+<header th:insert="parts/teacher_header :: teacher_header" th:if="${role} == 'teacher'"></header>
+<header th:insert="parts/student_header :: student_header" th:if="${role} == 'student'"></header>
+<div class="p-3 mb-2 bg-light text-dark">
+<h4>Выбранные ответы</h4>
+<h4>Оценка за работу - [[${mark}]]</h4>
+
+<div th:each="q, in : ${test.getQuestions()}">
+    <h5>Вопрос №[[${in.index + 1}]]:</h5><h5 class="text-secondary">[[${q.getQuestion()}]]</h5>
+    <div th:each="ans : ${answers.get(in.index).getStudentsAnswers()}">
+        <h5 class="text-success" th:if="${answers.get(in.index).isRight()}">[[${ans}]]</h5>
+        <h5 class="text-danger" th:if="${!answers.get(in.index).isRight()}">[[${ans}]]</h5>
+    </div>
+</div>
+</div>
+
+</body>
+</html>

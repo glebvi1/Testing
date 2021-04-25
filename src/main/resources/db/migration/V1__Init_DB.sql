@@ -37,6 +37,12 @@ create table module_tests
      tests_id bigint not null,
      primary key (module_id, tests_id));
 
+create table module_control_work
+    (module_id bigint not null,
+     control_work bigint,
+      control_work_key bigint not null,
+       primary key (module_id, control_work_key));
+
 create table question
     (id bigint not null,
     question varchar(255),
@@ -49,6 +55,10 @@ create table question_answers_options
 create table question_correct_answer
     (question_id bigint not null,
     correct_answer bit);
+
+create table question_students_answers
+    (question_id bigint not null,
+    students_answers_id bigint not null);
 
 create table student
     (id bigint not null,
@@ -68,6 +78,17 @@ create table student_groups
     (student_id bigint not null,
      groups_id bigint not null);
 
+create table students_answers
+    (id bigint not null,
+    is_right bit not null,
+    question_id bigint,
+     student_id bigint,
+      primary key (id));
+
+create table students_answers_students_answers
+    (students_answers_id bigint not null,
+     students_answers varchar(255));
+
 create table teacher
     (id bigint not null,
     activated_code varchar(255),
@@ -86,7 +107,8 @@ create table test
     title varchar(255),
     module_id bigint,
     filename varchar(255),
-    type bit,
+    is_file bit,
+    is_control bit,
     primary key (id));
 
 create table test_grading_system
@@ -122,6 +144,7 @@ create table users
 create table users_roles
     (users_id bigint not null,
      roles varchar(255));
+
 
 alter table education_group_modules
     add constraint UK_ncb9v0ytktx0ahi4ind9ply4p
@@ -239,3 +262,33 @@ alter table test_students_marks
     add constraint FK5f8hmblsrtnqax7r3w65hccvi
         foreign key (test_id)
             references test (id);
+
+alter table students_answers
+    add constraint FKkuolqw2rtl9p3bsq89gmmax9c
+        foreign key (question_id)
+            references question (id);
+
+alter table students_answers
+    add constraint FK3su2m0nh1961re1guhcpyqr36
+        foreign key (student_id)
+            references student (id);
+
+alter table students_answers_students_answers
+    add constraint FKkjlrlsivv4nvryg1t6a0he6m7
+        foreign key (students_answers_id)
+            references students_answers (id);
+
+alter table question_students_answers
+    add constraint FKh9tffdi0c35ajefn9v5ppne5g
+        foreign key (students_answers_id)
+            references students_answers (id);
+
+alter table question_students_answers
+    add constraint FKbmkl8t8hyyy0jo3rkx1nl95q
+        foreign key (question_id)
+            references question (id);
+
+alter table module_control_work
+    add constraint FK3gwyx9rpd6eox2dnacfw374ua
+        foreign key (module_id)
+            references module (id);

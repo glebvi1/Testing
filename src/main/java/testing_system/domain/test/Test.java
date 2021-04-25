@@ -3,7 +3,6 @@ package testing_system.domain.test;
 import testing_system.domain.group.Module;
 
 import javax.persistence.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,11 @@ public class Test {
     // Прикрепленный файл от учителя
     private String filename;
 
-    private boolean type;
+    // Тип теста: с файлами или без
+    private boolean isFile;
+
+    // true - Если тест создан из КР
+    private boolean isControl;
 
     // Long - id студента, String - файлы, идущие через пробел
     // Файлы, прикрепленные студентом
@@ -116,11 +119,27 @@ public class Test {
         this.studentsSolving = studentsSolving;
     }
 
-    public boolean isType() {
-        return type;
+    public boolean isIsFile() {
+        return isFile;
     }
 
-    public void setType(boolean type) {
-        this.type = type;
+    public void setIsFile(boolean type) {
+        this.isFile = type;
+    }
+
+    public boolean isFile() {
+        return isFile;
+    }
+
+    public void setFile(boolean file) {
+        isFile = file;
+    }
+
+    public boolean isControl() {
+        return isControl;
+    }
+
+    public void setControl(boolean control) {
+        isControl = control;
     }
 }
